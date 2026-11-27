@@ -167,7 +167,7 @@ def _fenced_blocks(
                 artifact_id=f"{parent_path}:fence:{index}:unclosed",
                 parent_path=parent_path, parent_sha=parent_sha, parent_size=len(data),
                 region_bytes=data[opening.start():], start=opening.start(), end=len(data),
-                line_start=data[:opening.start()].count(b"\\n") + 1, line_end=data.count(b"\\n") + 1,
+                line_start=data[:opening.start()].count(b"\n") + 1, line_end=data.count(b"\n") + 1,
                 classification="fenced_code_block", symbols=[], status="partial",
                 grammar="Markdown fenced block",
                 tags=["CONTAINS_EMBEDDED_SOURCE", "PARSE_INCOMPLETE"],
@@ -181,8 +181,8 @@ def _fenced_blocks(
         code_start, code_end = opening.end(), close_start
         code = data[code_start:code_end]
         covered.append((opening.start(), close_end))
-        start_line = data[:code_start].count(b"\\n") + 1
-        end_line = start_line + code.count(b"\\n")
+        start_line = data[:code_start].count(b"\n") + 1
+        end_line = start_line + code.count(b"\n")
         language = opening.group(1).decode("ascii", errors="ignore").lower()
         if language in ("python", "py"):
             parsed = _python_symbol_records(
@@ -230,15 +230,15 @@ def _unfenced_declaration_candidates(
     for match in _DECLARATION.finditer(data):
         if any(left <= match.start() < right for left, right in covered_ranges):
             continue
-        line = data[:match.start()].count(b"\\n") + 1
+        line = data[:match.start()].count(b"\n") + 1
         line_start = starts[line - 1]
-        line_end = data.find(b"\\n", line_start)
+        line_end = data.find(b"\n", line_start)
         if line_end < 0:
             line_end = len(data)
         raw_line = data[line_start:line_end]
         identifier = match.group(1).decode("ascii", errors="replace")
         declaration = data[match.start():match.end()]
-        kind = "class" if re.search(rb"\\bclass\\s+", declaration) else "function"
+        kind = "class" if re.search(rb"\bclass\s+", declaration) else "function"
         records.append(_record(
             artifact_id=f"{parent_path}:unfenced:{kind}:{identifier}:{line}",
             parent_path=parent_path, parent_sha=parent_sha, parent_size=len(data),
@@ -287,7 +287,7 @@ def index_bytes(
         file_record = _record(
             artifact_id=f"{path}:source-file", parent_path=path, parent_sha=parent_sha,
             parent_size=len(data), region_bytes=data, start=0, end=len(data),
-            line_start=1, line_end=data.count(b"\\n") + 1,
+            line_start=1, line_end=data.count(b"\n") + 1,
             classification="source_file", symbols=symbols, status=status,
             grammar="Python AST", tags=["SOURCE_FILE"] + (["PARSE_INCOMPLETE"] if status != "complete" else []),
             errors=[e for record in ast_records for e in record["errors"]],
@@ -309,7 +309,7 @@ def index_bytes(
                 artifact_id=f"{path}:json-root",
                 parent_path=path, parent_sha=parent_sha, parent_size=len(data),
                 region_bytes=data, start=0, end=len(data), line_start=1,
-                line_end=data.count(b"\\n") + 1, classification="json_structure",
+                line_end=data.count(b"\n") + 1, classification="json_structure",
                 symbols=[{"kind":"json_key","identifier":str(k),"signature":None} for k in keys],
                 status="complete", grammar="JSON parser",
                 tags=["STRUCTURED_SCHEMA"], coverage_receipt_ref=coverage_receipt_ref,
@@ -319,15 +319,15 @@ def index_bytes(
                 artifact_id=f"{path}:json-parse-failed",
                 parent_path=path, parent_sha=parent_sha, parent_size=len(data),
                 region_bytes=data, start=0, end=len(data), line_start=1,
-                line_end=data.count(b"\\n") + 1, classification="json_structure",
+                line_end=data.count(b"\n") + 1, classification="json_structure",
                 symbols=[], status="parse_failed", grammar="JSON parser",
                 tags=["STRUCTURED_SCHEMA","PARSE_INCOMPLETE"], errors=[str(exc)],
                 coverage_receipt_ref=coverage_receipt_ref,
             )]
     if suffix == ".tla":
-        matches=list(re.finditer(rb"(?m)^\\s*----\\s*MODULE\\s+([A-Za-z0-9_]+)",data))
+        matches=list(re.finditer(rb"(?m)^\s*----\s*MODULE\s+([A-Za-z0-9_]+)",data))
         if matches:
-            m=matches[0]; line=data[:m.start()].count(b"\\n")+1
+            m=matches[0]; line=data[:m.start()].count(b"\n")+1
             return [_record(
                 artifact_id=f"{path}:tla-module:{m.group(1).decode()}",
                 parent_path=path,parent_sha=parent_sha,parent_size=len(data),
@@ -338,13 +338,13 @@ def index_bytes(
                 tags=["STRUCTURED_SCHEMA"],coverage_receipt_ref=coverage_receipt_ref)]
         return [_record(
             artifact_id=f"{path}:tla-header-missing",parent_path=path,parent_sha=parent_sha,parent_size=len(data),
-            region_bytes=data,start=0,end=len(data),line_start=1,line_end=data.count(b"\\n")+1,
+            region_bytes=data,start=0,end=len(data),line_start=1,line_end=data.count(b"\n")+1,
             classification="tla_module",symbols=[],status="partial",grammar="TLA+ module-header recognizer",
             tags=["STRUCTURED_SCHEMA","PARSE_INCOMPLETE"],errors=["No MODULE header found"],
             coverage_receipt_ref=coverage_receipt_ref)]
     return [_record(
         artifact_id=f"{path}:unsupported-language",parent_path=path,parent_sha=parent_sha,parent_size=len(data),
-        region_bytes=data,start=0,end=len(data),line_start=1,line_end=data.count(b"\\n")+1,
+        region_bytes=data,start=0,end=len(data),line_start=1,line_end=data.count(b"\n")+1,
         classification="other_embedded_source",symbols=[],status="unsupported",grammar=f"No parser registered for {suffix or 'extensionless file'}",
         tags=["PARSE_INCOMPLETE"],errors=["Content type not handled by this indexer version"],
         coverage_receipt_ref=coverage_receipt_ref)] if data else []
