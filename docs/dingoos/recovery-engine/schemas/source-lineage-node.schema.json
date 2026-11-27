@@ -129,5 +129,29 @@
       "type": "string",
       "format": "date-time"
     }
-  }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "tier": {
+            "const": "DERIVED_RECONSTRUCTION"
+          }
+        },
+        "required": [
+          "tier"
+        ]
+      },
+      "then": {
+        "required": [
+          "attribution_edges"
+        ],
+        "properties": {
+          "attribution_edges": {
+            "minItems": 1
+          }
+        }
+      }
+    }
+  ]
 }
