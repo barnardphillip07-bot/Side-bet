@@ -1,0 +1,187 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://side-bet.invalid/dingoos/recovery-engine/v0.1/effecting-target-reachability.schema.json",
+  "title": "DingoOS definition-to-effecting-target reachability audit",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_id",
+    "schema_version",
+    "audit_id",
+    "guard_definition",
+    "entry_points",
+    "call_sites",
+    "effecting_target",
+    "analysis",
+    "effecting_target_bound"
+  ],
+  "properties": {
+    "schema_id": {
+      "const": "EFFECTING_TARGET_REACHABILITY"
+    },
+    "schema_version": {
+      "const": "0.1.0"
+    },
+    "audit_id": {
+      "type": "string"
+    },
+    "guard_definition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "symbol",
+        "file",
+        "source_sha256"
+      ],
+      "properties": {
+        "symbol": {
+          "type": "string"
+        },
+        "file": {
+          "type": "string"
+        },
+        "line_start": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1
+        },
+        "line_end": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1
+        },
+        "source_sha256": {
+          "type": "string",
+          "pattern": "^[a-fA-F0-9]{64}$"
+        }
+      }
+    },
+    "entry_points": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "call_sites": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "caller",
+          "callee",
+          "file"
+        ],
+        "properties": {
+          "caller": {
+            "type": "string"
+          },
+          "callee": {
+            "type": "string"
+          },
+          "file": {
+            "type": "string"
+          },
+          "line": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 1
+          },
+          "dispatch_kind": {
+            "enum": [
+              "direct",
+              "indirect",
+              "dynamic",
+              "reflection",
+              "plugin",
+              "callback",
+              "external",
+              "unknown"
+            ]
+          }
+        }
+      }
+    },
+    "effecting_target": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "identity",
+        "operation"
+      ],
+      "properties": {
+        "identity": {
+          "type": "string"
+        },
+        "operation": {
+          "type": "string"
+        },
+        "commit_boundary": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "analysis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "tool",
+        "version",
+        "closed_world_assumption",
+        "uninspected_dependencies",
+        "bypass_paths"
+      ],
+      "properties": {
+        "tool": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "closed_world_assumption": {
+          "type": "boolean"
+        },
+        "uninspected_dependencies": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "dynamic_boundaries": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "bypass_paths": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "limitations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "effecting_target_bound": {
+      "enum": [
+        "TRUE",
+        "FALSE",
+        "UNVERIFIED"
+      ]
+    }
+  }
+}
