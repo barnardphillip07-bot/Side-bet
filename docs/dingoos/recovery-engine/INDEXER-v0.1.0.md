@@ -50,4 +50,4 @@ The caller is responsible for enumerating the search universe, creating and vali
 
 Fixture tests cover Python AST extraction, exact offsets and hashes, fenced Markdown blocks, malformed code, unfenced mixed-text candidates, JSON keys, TLA+ headers, ZIP member traversal, unsupported formats and size limits.
 
-Latest CI result at implementation increment: **26 passed**. This is fixture-level verification only; no complete Library or DingoOS archive scan has yet been run by this module.
+Latest CI result at implementation increment: **27 passed**. This is fixture-level verification only; no complete Library or DingoOS archive scan has yet been run by this module.
