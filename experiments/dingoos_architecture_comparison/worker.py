@@ -16,9 +16,12 @@ from benchmarks.dingoos.wlc_001 import (
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--role", choices=("alpha_a", "alpha_b", "beta"), required=True)
+    parser.add_argument("--inject-failure", action="store_true")
     args = parser.parse_args()
     payload = json.load(sys.stdin)
     inputs = WLC001Inputs(**payload)
+    if args.inject_failure:
+        raise RuntimeError("FT-02 injected domain-worker failure")
     if args.role == "alpha_a":
         result = {"frequency_hz": analytical_damped_frequency_hz(inputs)}
     elif args.role == "alpha_b":
