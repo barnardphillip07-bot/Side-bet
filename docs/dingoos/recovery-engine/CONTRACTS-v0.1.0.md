@@ -69,8 +69,9 @@ These structural conditions are necessary, not sufficient. The declared search u
 The five schemas were read back from the exact Side-bet branch, parsed as JSON, and passed Draft 2020-12 meta-schema checks in CI using the pinned validator. The contract test suite now completes successfully: 16 passed, including the saved recursive Library inventory receipt, six embedded-source index records, seven lineage nodes and the non-merging gateway diff. This is a verified contract/index-record validation increment, not verification of a complete recovery engine. No embedded-source indexer, general AST parser, graph tracer, NCP-03 invalidation worker or global Library scanner has been implemented by this increment.
 
 Next:
-1. Read back all five schemas from the exact branch and parse each as JSON.
-2. Validate each against a Draft 2020-12 meta-schema using a pinned validator version.
-3. Add positive and negative fixtures, including forbidden global-negative claims, incomplete pagination, derived nodes without attribution, and `TRUE` reachability with dynamic/uninspected paths.
-4. Preserve existing test ownership when mapping these fixtures into the established DingoOS test architecture.
-5. Reconcile NCP-03 before implementing RE-005.
+1. Expand tests for byte-range semantics, UTF-16 key-order edge cases, invalid Unicode, duplicate paths and resource-limit exhaustion.
+2. Build the automated source-bearing indexer and archive/member traversal; preserve original bytes and exact extraction offsets.
+3. Add immutable lineage comparison and source-node persistence without in-place source merging.
+4. Add definition-to-effecting-target analysis with dynamic dispatch and incomplete source forced to UNVERIFIED.
+5. Reconcile NCP-03 state/edge semantics before implementing RE-005; see `NCP03-RE005-INTEGRATION-BOUNDARY.md`.
+6. Generate further receipts only from actual enumerations and inspections; never synthesize historical receipts.
