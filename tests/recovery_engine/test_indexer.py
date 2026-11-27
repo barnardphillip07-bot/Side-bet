@@ -111,3 +111,8 @@ def test_empty_files_produce_no_invalid_zero_length_source_regions():
     assert index_bytes("empty.json", b"") == []
     assert index_bytes("empty.tla", b"") == []
     assert index_bytes("empty.py", b"") == []
+
+
+
+def test_empty_fenced_block_does_not_emit_invalid_zero_length_region():
+    assert index_bytes("empty-fence.md", b"```python\n```\n") == []
