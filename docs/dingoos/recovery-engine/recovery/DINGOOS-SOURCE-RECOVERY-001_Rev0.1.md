@@ -27,8 +27,9 @@ The Library root was enumerated recursively with pagination to `next_cursor = nu
 
 The inventory includes root-level files and nested DingoOS and encyclopaedia directories. It therefore corrects the earlier narrow-folder search failure.
 
-**Coverage receipt:**  
-`docs/dingoos/recovery-engine/evidence/receipts/SEARCH-COVERAGE-DINGOOS-LIBRARY-ROOT-20261127.json`
+**Coverage receipts:**  
+Initial Pass 1: `docs/dingoos/recovery-engine/evidence/receipts/SEARCH-COVERAGE-DINGOOS-LIBRARY-ROOT-20261127.json`  
+Updated Pass 2: `docs/dingoos/recovery-engine/evidence/receipts/SEARCH-COVERAGE-DINGOOS-LIBRARY-ROOT-20261127-PASS2-001.json`
 
 - Pass 1 inventory SHA-256: `fe2eca400d3392c117f3abf5ae4a1cb60f3d333579f6ecf04d9363e6baae32e5`
 - Initial Pass 2 metadata inventory SHA-256: `e528226687e7138581ba63dcfbc2f44fa89a4e84e5f9d98cb3026f36bba7fcd5`  \n- Updated Pass 2 inventory SHA-256: `593ac5db4dae3d455a716320971328171b550d352edeca837848cd398aec45e9`
