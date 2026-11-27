@@ -1,0 +1,187 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://side-bet.invalid/dingoos/recovery-engine/v0.1/source-artifact-index-record.schema.json",
+  "title": "DingoOS source-bearing artifact index record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_id",
+    "schema_version",
+    "artifact_id",
+    "parent_artifact",
+    "region",
+    "classification",
+    "extractor",
+    "status"
+  ],
+  "properties": {
+    "schema_id": {
+      "const": "SOURCE_ARTIFACT_INDEX_RECORD"
+    },
+    "schema_version": {
+      "const": "0.1.0"
+    },
+    "artifact_id": {
+      "type": "string"
+    },
+    "parent_artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256"
+      ],
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "archive_entry_path": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-fA-F0-9]{64}$"
+        },
+        "size_bytes": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "region": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "byte_offset_start",
+        "byte_offset_end",
+        "content_sha256"
+      ],
+      "properties": {
+        "byte_offset_start": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "byte_offset_end": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "line_start": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1
+        },
+        "line_end": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1
+        },
+        "content_sha256": {
+          "type": "string",
+          "pattern": "^[a-fA-F0-9]{64}$"
+        }
+      }
+    },
+    "classification": {
+      "enum": [
+        "source_file",
+        "fenced_code_block",
+        "inline_code",
+        "python_ast_symbol",
+        "tla_module",
+        "json_structure",
+        "schema_definition",
+        "other_embedded_source"
+      ]
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "CONTAINS_EMBEDDED_SOURCE",
+          "SOURCE_FILE",
+          "STRUCTURED_SCHEMA",
+          "PARSE_INCOMPLETE"
+        ]
+      }
+    },
+    "symbols": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "kind",
+          "identifier"
+        ],
+        "properties": {
+          "kind": {
+            "type": "string"
+          },
+          "identifier": {
+            "type": "string"
+          },
+          "signature": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      }
+    },
+    "extractor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "version",
+        "grammar"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "grammar": {
+          "type": "string"
+        },
+        "canonicalization_profile": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "status": {
+      "enum": [
+        "complete",
+        "partial",
+        "parse_failed",
+        "unsupported",
+        "not_attempted"
+      ]
+    },
+    "errors": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "coverage_receipt_ref": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  }
+}
