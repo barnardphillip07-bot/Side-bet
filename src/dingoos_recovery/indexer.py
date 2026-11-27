@@ -152,41 +152,48 @@ def _fenced_blocks(
     parent_path: str,
     parent_sha: str,
     coverage_receipt_ref: str | None,
-) -> list[dict[str, Any]]:
+) -> tuple[list[dict[str, Any]], list[tuple[int, int]]]:
     records: list[dict[str, Any]] = []
-    starts = _line_starts(data)
-    matches = list(_FENCE.finditer(data))
-    for index, opening in enumerate(matches):
-        closing = re.search(rb"(?m)^[ \t]*```[ \t]*\r?$", data[opening.end():])
+    covered: list[tuple[int, int]] = []
+    position = 0
+    index = 0
+    while True:
+        opening = _FENCE.search(data, position)
+        if not opening:
+            break
+        closing = re.search(rb"(?m)^[ \\t]*```[ \\t]*\\r?$", data[opening.end():])
         if not closing:
             records.append(_record(
                 artifact_id=f"{parent_path}:fence:{index}:unclosed",
                 parent_path=parent_path, parent_sha=parent_sha, parent_size=len(data),
                 region_bytes=data[opening.start():], start=opening.start(), end=len(data),
-                line_start=data[:opening.start()].count(b"\n") + 1, line_end=data.count(b"\n") + 1,
+                line_start=data[:opening.start()].count(b"\\n") + 1, line_end=data.count(b"\\n") + 1,
                 classification="fenced_code_block", symbols=[], status="partial",
                 grammar="Markdown fenced block",
                 tags=["CONTAINS_EMBEDDED_SOURCE", "PARSE_INCOMPLETE"],
                 errors=["Opening fence has no matching closing fence"],
                 coverage_receipt_ref=coverage_receipt_ref,
             ))
-            continue
+            covered.append((opening.start(), len(data)))
+            break
         close_start = opening.end() + closing.start()
         close_end = opening.end() + closing.end()
-        language = opening.group(1).decode("ascii", errors="ignore").lower()
         code_start, code_end = opening.end(), close_start
         code = data[code_start:code_end]
-        start_line = data[:code_start].count(b"\n") + 1
-        end_line = start_line + code.count(b"\n")
-        base_line = start_line
+        covered.append((opening.start(), close_end))
+        start_line = data[:code_start].count(b"\\n") + 1
+        end_line = start_line + code.count(b"\\n")
+        language = opening.group(1).decode("ascii", errors="ignore").lower()
         if language in ("python", "py"):
-            records.extend(_python_symbol_records(
+            parsed = _python_symbol_records(
                 code=code, parent_path=parent_path, parent_sha=parent_sha, parent_size=len(data),
-                base_offset=code_start, base_line=base_line, archive_entry_path=None,
+                base_offset=code_start, base_line=start_line, archive_entry_path=None,
                 coverage_receipt_ref=coverage_receipt_ref,
                 prefix=f"{parent_path}:fence:{index}",
-            ))
-            if not any(r["artifact_id"].startswith(f"{parent_path}:fence:{index}:") for r in records):
+            )
+            if parsed:
+                records.extend(parsed)
+            else:
                 records.append(_record(
                     artifact_id=f"{parent_path}:fence:{index}:python-block",
                     parent_path=parent_path, parent_sha=parent_sha, parent_size=len(data),
@@ -206,25 +213,32 @@ def _fenced_blocks(
                 grammar=f"Markdown fenced block language={language or 'unlabelled'}",
                 tags=["CONTAINS_EMBEDDED_SOURCE"], coverage_receipt_ref=coverage_receipt_ref,
             ))
-    return records
+        position = close_end
+        index += 1
+    return records, covered
 
 
 def _unfenced_declaration_candidates(
-    data: bytes, *, parent_path: str, parent_sha: str, coverage_receipt_ref: str | None
+    data: bytes, *, parent_path: str, parent_sha: str,
+    coverage_receipt_ref: str | None,
+    covered_ranges: list[tuple[int, int]] | None = None,
 ) -> list[dict[str, Any]]:
     """Index declaration-bearing lines in mixed prose without claiming AST validity."""
     records = []
     starts = _line_starts(data)
+    covered_ranges = covered_ranges or []
     for match in _DECLARATION.finditer(data):
-        line = data[:match.start()].count(b"\n") + 1
+        if any(left <= match.start() < right for left, right in covered_ranges):
+            continue
+        line = data[:match.start()].count(b"\\n") + 1
         line_start = starts[line - 1]
-        line_end = data.find(b"\n", line_start)
+        line_end = data.find(b"\\n", line_start)
         if line_end < 0:
             line_end = len(data)
         raw_line = data[line_start:line_end]
         identifier = match.group(1).decode("ascii", errors="replace")
-        prefix = data[max(line_start, match.start() - 12):match.start()].strip()
-        kind = "class" if b"class" in data[match.start():match.end()] or prefix.endswith(b"class") else "function"
+        declaration = data[match.start():match.end()]
+        kind = "class" if re.search(rb"\\bclass\\s+", declaration) else "function"
         records.append(_record(
             artifact_id=f"{parent_path}:unfenced:{kind}:{identifier}:{line}",
             parent_path=parent_path, parent_sha=parent_sha, parent_size=len(data),
@@ -263,17 +277,29 @@ def index_bytes(
         )]
     suffix = Path(path).suffix.lower()
     if suffix == ".py":
-        return _python_symbol_records(
+        ast_records = _python_symbol_records(
             code=data, parent_path=path, parent_sha=parent_sha, parent_size=len(data),
             base_offset=0, base_line=1, archive_entry_path=None,
             coverage_receipt_ref=coverage_receipt_ref, prefix=path,
         )
+        symbols = [symbol for record in ast_records for symbol in record["symbols"]]
+        status = "parse_failed" if any(record["status"] == "parse_failed" for record in ast_records) else "complete"
+        file_record = _record(
+            artifact_id=f"{path}:source-file", parent_path=path, parent_sha=parent_sha,
+            parent_size=len(data), region_bytes=data, start=0, end=len(data),
+            line_start=1, line_end=data.count(b"\\n") + 1,
+            classification="source_file", symbols=symbols, status=status,
+            grammar="Python AST", tags=["SOURCE_FILE"] + (["PARSE_INCOMPLETE"] if status != "complete" else []),
+            errors=[e for record in ast_records for e in record["errors"]],
+            coverage_receipt_ref=coverage_receipt_ref,
+        ) if data else None
+        return ([file_record] if file_record else []) + ast_records
     if suffix in (".md", ".markdown", ".txt", ".rst"):
-        records = _fenced_blocks(data, parent_path=path, parent_sha=parent_sha,
-                                 coverage_receipt_ref=coverage_receipt_ref)
+        records, covered = _fenced_blocks(data, parent_path=path, parent_sha=parent_sha,
+                                          coverage_receipt_ref=coverage_receipt_ref)
         records.extend(_unfenced_declaration_candidates(
             data, parent_path=path, parent_sha=parent_sha,
-            coverage_receipt_ref=coverage_receipt_ref))
+            coverage_receipt_ref=coverage_receipt_ref, covered_ranges=covered))
         return records
     if suffix == ".json":
         try:
@@ -283,7 +309,7 @@ def index_bytes(
                 artifact_id=f"{path}:json-root",
                 parent_path=path, parent_sha=parent_sha, parent_size=len(data),
                 region_bytes=data, start=0, end=len(data), line_start=1,
-                line_end=data.count(b"\n") + 1, classification="json_structure",
+                line_end=data.count(b"\\n") + 1, classification="json_structure",
                 symbols=[{"kind":"json_key","identifier":str(k),"signature":None} for k in keys],
                 status="complete", grammar="JSON parser",
                 tags=["STRUCTURED_SCHEMA"], coverage_receipt_ref=coverage_receipt_ref,
@@ -293,15 +319,15 @@ def index_bytes(
                 artifact_id=f"{path}:json-parse-failed",
                 parent_path=path, parent_sha=parent_sha, parent_size=len(data),
                 region_bytes=data, start=0, end=len(data), line_start=1,
-                line_end=data.count(b"\n") + 1, classification="json_structure",
+                line_end=data.count(b"\\n") + 1, classification="json_structure",
                 symbols=[], status="parse_failed", grammar="JSON parser",
                 tags=["STRUCTURED_SCHEMA","PARSE_INCOMPLETE"], errors=[str(exc)],
                 coverage_receipt_ref=coverage_receipt_ref,
             )]
     if suffix == ".tla":
-        matches=list(re.finditer(rb"(?m)^\s*----\s*MODULE\s+([A-Za-z0-9_]+)",data))
+        matches=list(re.finditer(rb"(?m)^\\s*----\\s*MODULE\\s+([A-Za-z0-9_]+)",data))
         if matches:
-            m=matches[0]; line=data[:m.start()].count(b"\n")+1
+            m=matches[0]; line=data[:m.start()].count(b"\\n")+1
             return [_record(
                 artifact_id=f"{path}:tla-module:{m.group(1).decode()}",
                 parent_path=path,parent_sha=parent_sha,parent_size=len(data),
@@ -312,12 +338,16 @@ def index_bytes(
                 tags=["STRUCTURED_SCHEMA"],coverage_receipt_ref=coverage_receipt_ref)]
         return [_record(
             artifact_id=f"{path}:tla-header-missing",parent_path=path,parent_sha=parent_sha,parent_size=len(data),
-            region_bytes=data,start=0,end=len(data),line_start=1,line_end=data.count(b"\n")+1,
+            region_bytes=data,start=0,end=len(data),line_start=1,line_end=data.count(b"\\n")+1,
             classification="tla_module",symbols=[],status="partial",grammar="TLA+ module-header recognizer",
             tags=["STRUCTURED_SCHEMA","PARSE_INCOMPLETE"],errors=["No MODULE header found"],
             coverage_receipt_ref=coverage_receipt_ref)]
-    return []
-
+    return [_record(
+        artifact_id=f"{path}:unsupported-language",parent_path=path,parent_sha=parent_sha,parent_size=len(data),
+        region_bytes=data,start=0,end=len(data),line_start=1,line_end=data.count(b"\\n")+1,
+        classification="other_embedded_source",symbols=[],status="unsupported",grammar=f"No parser registered for {suffix or 'extensionless file'}",
+        tags=["PARSE_INCOMPLETE"],errors=["Content type not handled by this indexer version"],
+        coverage_receipt_ref=coverage_receipt_ref)] if data else []
 
 def index_zip_bytes(
     archive_path: str,
