@@ -14,6 +14,8 @@ from dingoos_recovery.contracts import (
     validate_coverage_receipt,
     validate_lineage_node,
     validate_reachability_report,
+    validate_record,
+    validate_source_artifact_record,
 )
 
 
@@ -177,3 +179,47 @@ def test_saved_library_root_coverage_receipt_is_integrity_consistent():
     assert saved["coverage_assessment"] == "incomplete"
     assert saved["pass_1_root_inventory"]["entry_count"] == 653
     assert saved["pass_2_deep_inventory"]["entry_count"] == 594
+
+
+
+def test_pass2_library_receipt_and_embedded_source_indexes_validate():
+    repository_root = Path(__file__).resolve().parents[2]
+    base = repository_root / "docs/dingoos/recovery-engine"
+    receipt_path = base / "evidence/receipts/SEARCH-COVERAGE-DINGOOS-LIBRARY-ROOT-20261127-PASS2-001.json"
+    saved = json.loads(receipt_path.read_text(encoding="utf-8"))
+    validate_coverage_receipt(saved)
+    assert saved["conclusion_scope"] == "UNRESOLVED"
+    assert saved["pass_1_root_inventory"]["entry_count"] == 653
+    assert saved["pass_2_deep_inventory"]["entry_count"] == 594
+    inspected = [e for e in saved["pass_2_deep_inventory"]["entries"] if e["embedded_source_inspected"]]
+    assert len(inspected) == 1
+    assert inspected[0]["path"] == "/Pasted text(7).txt"
+    assert inspected[0]["content_sha256"] == "548a7a5595bd5d81863fbc8815e45e0b0423c51712883b585135cfea3d369752"
+
+    artifact_ids = [
+        "P7-API-GATEWAY-A", "P7-API-GATEWAY-B", "P7-HORIZON-CALLERS",
+        "P7-MAIN-CALLSITE", "P7-EVOLUTION-LEDGER-A", "P7-EVOLUTION-LEDGER-B"
+    ]
+    for artifact_id in artifact_ids:
+        record_path = base / f"index/source-artifacts/{artifact_id}.json"
+        record = json.loads(record_path.read_text(encoding="utf-8"))
+        validate_source_artifact_record(record)
+        assert record["parent_artifact"]["sha256"] == "548a7a5595bd5d81863fbc8815e45e0b0423c51712883b585135cfea3d369752"
+        assert record["coverage_receipt_ref"].endswith("PASS2-001.json")
+
+
+def test_source_lineage_nodes_and_non_merging_diff_validate():
+    repository_root = Path(__file__).resolve().parents[2]
+    base = repository_root / "docs/dingoos/recovery-engine/index"
+    node_ids = [
+        "SRC-P7-HISTORICAL-COMPILATION-001", "SRC-P7-API-GATEWAY-A",
+        "SRC-P7-API-GATEWAY-B", "SRC-P7-HORIZON-CALLERS",
+        "SRC-P7-MAIN-CALLSITE", "SRC-P7-EVOLUTION-A", "SRC-P7-EVOLUTION-B"
+    ]
+    for node_id in node_ids:
+        node = json.loads((base / f"lineage/{node_id}.json").read_text(encoding="utf-8"))
+        validate_lineage_node(node)
+    diff = json.loads((base / "diffs/DIFF-P7-API-GATEWAY-A-VS-B.json").read_text(encoding="utf-8"))
+    validate_record("LINEAGE_DIFF_REPORT", diff)
+    assert diff["merge_performed"] is False
+    assert diff["comparison_status"] == "partial"
