@@ -1,0 +1,126 @@
+{
+  "workload_id": "WLC-001",
+  "name": "CSRE1/CSRE2 resonance-analysis and verification vertical slice",
+  "status": "CANDIDATE_NOT_FROZEN",
+  "source_artifact": {
+    "library_path": "/Pasted text(7).txt",
+    "library_file_id": "file_00000000f90c81fa88a3b0980b5d9d69",
+    "size_bytes": 133685,
+    "line_count": 2778,
+    "sha256": "548a7a5595bd5d81863fbc8815e45e0b0423c51712883b585135cfea3d369752"
+  },
+  "source_regions": [
+    {
+      "component": "C3POAgent and C4POAgent",
+      "lines": [
+        98,
+        123
+      ],
+      "byte_range": [
+        9456,
+        11166
+      ],
+      "sha256": "ba4d793d8dcbe48d49013a6ff6d7823843c9a42d9f7bd18dbe5b4ec6cd66cdae"
+    },
+    {
+      "component": "DigitalTwin",
+      "lines": [
+        135,
+        166
+      ],
+      "byte_range": [
+        12090,
+        13403
+      ],
+      "sha256": "1cb95d3cbb612aa5c31b94588e8accaf84511be427ec44235212e3cebad77556"
+    },
+    {
+      "component": "SensorHardwareGateway",
+      "lines": [
+        167,
+        195
+      ],
+      "byte_range": [
+        13403,
+        14517
+      ],
+      "sha256": "086b4eb8a84a38adcb4c7367689e58976350e54836e03711dc37c76602205317"
+    },
+    {
+      "component": "main orchestration excerpt",
+      "lines": [
+        1659,
+        1685
+      ],
+      "byte_range": [
+        92743,
+        93802
+      ],
+      "sha256": "35aa9263150b129cef76d1a9d5c5cb30aa82404d67ef45900bdc24fb1bb96ad3"
+    }
+  ],
+  "inputs": {
+    "mass_kg": 5,
+    "stiffness_N_per_m": 500,
+    "damping_coefficient": 0.05,
+    "duration_s": 2,
+    "time_step_s": 0.001,
+    "initial_displacement_m": 1,
+    "initial_velocity_m_per_s": 0
+  },
+  "approaches": {
+    "alpha_A_analytical": {
+      "method": "Undamped natural frequency formula",
+      "equation": "f_n = sqrt(k/m) / (2*pi)",
+      "derived_expected_frequency_Hz": 1.5915494309189535
+    },
+    "alpha_B_numerical": {
+      "method": "Existing DigitalTwin explicit Euler time-domain integration with zero-crossing frequency estimate",
+      "derived_expected_frequency_Hz": 1.5923566878980893,
+      "derived_zero_crossing_times_s": [
+        0.157,
+        0.471,
+        0.785,
+        1.099,
+        1.413,
+        1.727
+      ],
+      "derived_mean_half_period_s": 0.314
+    },
+    "beta_verification": {
+      "method": "Independent comparison of numerical estimate to analytical reference",
+      "existing_C4PO_default_tolerance_Hz": 0.05,
+      "derived_absolute_difference_Hz": 0.0008072569791358278,
+      "note": "The 0.05 Hz tolerance is a value found in the historical source fragment, not a newly approved architecture-performance threshold."
+    }
+  },
+  "determinism": {
+    "clock_and_ids": "Historical code uses wall-clock-derived IDs; benchmark harness must inject fixed IDs/clock or deterministic ID generator.",
+    "randomness": "SensorHardwareGateway uses Gaussian noise with no source-recorded seed. Exclude this stage from deterministic core workload unless a fixed seed and RNG implementation are declared.",
+    "source_integrity": "Do not edit the historical source artifact. Any harness composition must be a separate DERIVED_RECONSTRUCTION with attribution edges."
+  },
+  "workflow": {
+    "alpha_A": "Generate analytical frequency candidate.",
+    "alpha_B": "Generate numerical transient-response candidate.",
+    "beta": "Independently recompute/check both results and report discrepancy.",
+    "gamma": "No production authority or consequential target operation is present in the recovered workload; authority/fencing gates require separate existing tests and actual target source.",
+    "sigma": "Produce a provenance-linked comparison view without promoting simulation agreement to physical validation."
+  },
+  "known_integration_gap": "The historical main orchestration hardcodes simulated_measurement=1.59155 and does not call the separate DigitalTwin implementation. Connecting Alpha B to C4PO is a new derived benchmark harness, not an existing recovered call-site.",
+  "epistemic_limit": "Numerical agreement demonstrates only internal analytical/simulation consistency under the stated model. It does not establish experimental or physical validation.",
+  "freeze_requirements": [
+    "Owner confirms workload choice",
+    "Harness and exact source attribution reviewed",
+    "Fixed IDs/clock and any RNG seed specified",
+    "Expected outputs independently reproduced",
+    "Execution environment and resource envelope fixed",
+    "Common architecture test schedule and repetition count pre-registered"
+  ],
+  "architecture_candidates": [
+    "CENTRALIZED_MODULAR",
+    "FEDERATED",
+    "LOCAL_FIRST_HYBRID"
+  ],
+  "numeric_architecture_performance_thresholds": null,
+  "owner_decision": "PENDING"
+}
