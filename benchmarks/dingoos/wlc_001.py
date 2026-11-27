@@ -50,6 +50,22 @@ def analytical_damped_frequency_hz(inputs: WLC001Inputs) -> float:
     return math.sqrt(omega_squared) / (2.0 * math.pi)
 
 
+def beta_independent_characteristic_root_frequency_hz(inputs: WLC001Inputs) -> float:
+    """Independent beta calculation from the damped system's characteristic roots."""
+    inputs.validate()
+    mass = inputs.mass_kg
+    damping = inputs.damping_n_s_per_m
+    stiffness = inputs.stiffness_n_per_m
+    discriminant = complex((damping / mass) ** 2 - 4.0 * stiffness / mass, 0.0)
+    root = complex(discriminant) ** 0.5
+    root_a = (-(damping / mass) + root) / 2.0
+    root_b = (-(damping / mass) - root) / 2.0
+    omega_d = max(abs(root_a.imag), abs(root_b.imag))
+    if omega_d <= 0.0:
+        raise ValueError("WLC-001 beta check requires complex underdamped roots")
+    return omega_d / (2.0 * math.pi)
+
+
 def source_faithful_explicit_euler(inputs: WLC001Inputs) -> dict[str, Any]:
     """Reproduce the historical DigitalTwin update and zero-crossing estimator."""
     inputs.validate()
@@ -95,15 +111,20 @@ def run_workload(inputs: WLC001Inputs | None = None) -> dict[str, Any]:
     numerical = source_faithful_explicit_euler(inputs)
     analytical_damped = analytical_damped_frequency_hz(inputs)
     analytical_undamped = analytical_undamped_frequency_hz(inputs)
+    beta_reference = beta_independent_characteristic_root_frequency_hz(inputs)
     numerical_hz = numerical["estimated_frequency_hz"]
     return {
         "workload_id": "WLC-001",
         "inputs": asdict(inputs),
         "analytical_damped_frequency_hz": analytical_damped,
         "analytical_undamped_frequency_hz": analytical_undamped,
+        "beta_independent_characteristic_root_frequency_hz": beta_reference,
         "numerical": numerical,
         "absolute_error_vs_damped_hz": (
             abs(numerical_hz - analytical_damped) if numerical_hz is not None else None
+        ),
+        "absolute_error_vs_beta_hz": (
+            abs(numerical_hz - beta_reference) if numerical_hz is not None else None
         ),
         "epistemic_limit": (
             "Internal analytical/numerical model comparison only; not empirical "
