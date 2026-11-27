@@ -1,0 +1,144 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://side-bet.invalid/dingoos/recovery-engine/v0.1/lineage-diff-report.schema.json",
+  "title": "DingoOS pairwise non-merging lineage diff report",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_id",
+    "schema_version",
+    "report_id",
+    "node_a",
+    "node_b",
+    "comparison_tool",
+    "comparison_status",
+    "only_in_a",
+    "only_in_b",
+    "matching",
+    "conflicts",
+    "unresolved",
+    "merge_performed"
+  ],
+  "properties": {
+    "schema_id": {
+      "const": "LINEAGE_DIFF_REPORT"
+    },
+    "schema_version": {
+      "const": "0.1.0"
+    },
+    "report_id": {
+      "type": "string"
+    },
+    "node_a": {
+      "type": "string"
+    },
+    "node_b": {
+      "type": "string"
+    },
+    "comparison_tool": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "version",
+        "mode"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "mode": {
+          "enum": [
+            "ast",
+            "token",
+            "structural",
+            "byte",
+            "mixed"
+          ]
+        }
+      }
+    },
+    "comparison_status": {
+      "enum": [
+        "complete",
+        "partial",
+        "unsupported",
+        "failed"
+      ]
+    },
+    "only_in_a": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "only_in_b": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "matching": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "conflicts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "identifier",
+          "a_signature",
+          "b_signature"
+        ],
+        "properties": {
+          "identifier": {
+            "type": "string"
+          },
+          "a_signature": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "b_signature": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "analysis": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      }
+    },
+    "unresolved": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "merge_performed": {
+      "const": false
+    },
+    "derived_reconstruction_node_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "attribution_complete": {
+      "type": "boolean"
+    }
+  }
+}
