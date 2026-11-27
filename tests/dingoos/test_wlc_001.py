@@ -4,6 +4,7 @@ from benchmarks.dingoos.wlc_001 import (
     WLC001Inputs,
     analytical_damped_frequency_hz,
     analytical_undamped_frequency_hz,
+    beta_independent_characteristic_root_frequency_hz,
     run_workload,
     source_faithful_explicit_euler,
 )
@@ -14,6 +15,12 @@ class WLC001Tests(unittest.TestCase):
         inputs = WLC001Inputs()
         self.assertAlmostEqual(analytical_undamped_frequency_hz(inputs), 1.5915494309189535, places=12)
         self.assertAlmostEqual(analytical_damped_frequency_hz(inputs), 1.591549231975262, places=12)
+
+    def test_beta_independent_characteristic_root_reference(self):
+        beta_hz = beta_independent_characteristic_root_frequency_hz(WLC001Inputs())
+        alpha_hz = analytical_damped_frequency_hz(WLC001Inputs())
+        self.assertAlmostEqual(beta_hz, 1.591549231975262, places=12)
+        self.assertAlmostEqual(beta_hz, alpha_hz, places=12)
 
     def test_source_faithful_numerical_reference(self):
         result = source_faithful_explicit_euler(WLC001Inputs())
