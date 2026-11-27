@@ -1,0 +1,334 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://side-bet.invalid/dingoos/recovery-engine/v0.1/search-coverage-receipt.schema.json",
+  "title": "DingoOS SEARCH_COVERAGE_RECEIPT",
+  "description": "Versioned receipt for bounded source-recovery coverage. A digest proves integrity of recorded inventory, not completeness of the search universe.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_id",
+    "schema_version",
+    "receipt_id",
+    "created_at",
+    "search_objective",
+    "claim_scope",
+    "surfaces",
+    "pass_1_root_inventory",
+    "pass_2_deep_inventory",
+    "omitted_surfaces",
+    "coverage_assessment",
+    "conclusion_scope"
+  ],
+  "properties": {
+    "schema_id": {
+      "const": "SEARCH_COVERAGE_RECEIPT"
+    },
+    "schema_version": {
+      "const": "0.1.0"
+    },
+    "receipt_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "search_objective": {
+      "type": "string",
+      "minLength": 1
+    },
+    "claim_scope": {
+      "type": "object",
+      "required": [
+        "subject",
+        "declared_universe"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "subject": {
+          "type": "string"
+        },
+        "declared_universe": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1
+        },
+        "excluded_scope": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "surfaces": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "surface_id",
+          "surface_type",
+          "locator",
+          "enumeration_status",
+          "inspection_status",
+          "pagination_status",
+          "enumeration_method"
+        ],
+        "properties": {
+          "surface_id": {
+            "type": "string"
+          },
+          "surface_type": {
+            "enum": [
+              "library_root",
+              "library_directory",
+              "conversation_history",
+              "archive",
+              "archive_entry",
+              "github_repository",
+              "github_ref",
+              "github_path",
+              "connected_source",
+              "other"
+            ]
+          },
+          "locator": {
+            "type": "string"
+          },
+          "enumeration_method": {
+            "type": "string"
+          },
+          "tool_identity": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "tool_version": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "enumerated_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "enumeration_status": {
+            "enum": [
+              "complete",
+              "partial",
+              "failed",
+              "not_attempted"
+            ]
+          },
+          "inspection_status": {
+            "enum": [
+              "complete",
+              "partial",
+              "not_inspected",
+              "inaccessible",
+              "not_applicable"
+            ]
+          },
+          "pagination_status": {
+            "enum": [
+              "complete",
+              "incomplete",
+              "not_applicable",
+              "unknown"
+            ]
+          },
+          "entry_count": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 0
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "notes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "pass_1_root_inventory": {
+      "$ref": "#/$defs/inventory"
+    },
+    "pass_2_deep_inventory": {
+      "$ref": "#/$defs/inventory"
+    },
+    "omitted_surfaces": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "coverage_assessment": {
+      "enum": [
+        "complete_within_declared_universe",
+        "incomplete",
+        "blocked",
+        "not_assessed"
+      ]
+    },
+    "conclusion_scope": {
+      "enum": [
+        "FOUND",
+        "NOT_FOUND_WITHIN_SCOPED_SUBSET",
+        "UNRETRIEVED_WITHIN_SCOPED_SUBSET",
+        "INACCESSIBLE",
+        "NOT_INSPECTED",
+        "UNRESOLVED",
+        "UNRETRIEVED_GLOBALLY"
+      ]
+    },
+    "evidence_refs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "independent_coverage_validation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "passed",
+            "failed",
+            "not_performed"
+          ]
+        },
+        "method": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "reviewer": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "validated_at": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        },
+        "findings": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "inventory": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "serialization_profile",
+        "entry_count",
+        "entries",
+        "sha256"
+      ],
+      "properties": {
+        "serialization_profile": {
+          "const": "RFC8785-JCS-UTF8"
+        },
+        "entry_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "entries": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "path",
+              "entry_type",
+              "enumeration_status"
+            ],
+            "properties": {
+              "path": {
+                "type": "string"
+              },
+              "entry_type": {
+                "enum": [
+                  "file",
+                  "directory",
+                  "archive",
+                  "archive_entry",
+                  "repository_ref",
+                  "conversation_record",
+                  "other"
+                ]
+              },
+              "size_bytes": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "minimum": 0
+              },
+              "content_sha256": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "pattern": "^[a-fA-F0-9]{64}$"
+              },
+              "enumeration_status": {
+                "enum": [
+                  "enumerated",
+                  "inaccessible",
+                  "excluded",
+                  "failed"
+                ]
+              },
+              "embedded_source_inspected": {
+                "type": "boolean"
+              },
+              "notes": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-fA-F0-9]{64}$"
+        }
+      }
+    }
+  }
+}
