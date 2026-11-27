@@ -7,6 +7,7 @@ Standard-library only; no clock, random IDs, sensor noise, or external services.
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass
+import cmath
 import math
 from typing import Any
 
@@ -57,7 +58,7 @@ def beta_independent_characteristic_root_frequency_hz(inputs: WLC001Inputs) -> f
     damping = inputs.damping_n_s_per_m
     stiffness = inputs.stiffness_n_per_m
     discriminant = complex((damping / mass) ** 2 - 4.0 * stiffness / mass, 0.0)
-    root = complex(discriminant) ** 0.5
+    root = cmath.sqrt(discriminant)
     root_a = (-(damping / mass) + root) / 2.0
     root_b = (-(damping / mass) - root) / 2.0
     omega_d = max(abs(root_a.imag), abs(root_b.imag))
