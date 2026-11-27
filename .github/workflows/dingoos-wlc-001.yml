@@ -1,0 +1,22 @@
+name: DingoOS WLC-001 Deterministic Workload Tests
+
+on:
+  push:
+    branches:
+      - dingoos/recovery-engine-adopted-requirements
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  wlc-001-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Run deterministic workload tests
+        run: python -m unittest discover -s tests/dingoos -v
+      - name: Emit frozen workload reference
+        run: python -m benchmarks.dingoos.wlc_001
