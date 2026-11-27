@@ -161,7 +161,7 @@ def _fenced_blocks(
         opening = _FENCE.search(data, position)
         if not opening:
             break
-        closing = re.search(rb"(?m)^[ \\t]*```[ \\t]*\\r?$", data[opening.end():])
+        closing = re.search(rb"(?m)^[ \t]*```[ \t]*\r?$", data[opening.end():])
         if not closing:
             records.append(_record(
                 artifact_id=f"{parent_path}:fence:{index}:unclosed",
