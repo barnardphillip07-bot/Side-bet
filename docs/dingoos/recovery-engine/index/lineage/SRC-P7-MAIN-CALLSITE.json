@@ -1,0 +1,32 @@
+{
+  "schema_id": "SOURCE_LINEAGE_NODE",
+  "schema_version": "0.1.0",
+  "node_id": "SRC-P7-MAIN-CALLSITE",
+  "tier": "PARTIAL_EXCERPT",
+  "source_identity": {
+    "locator": "SRC-P7-HISTORICAL-COMPILATION-001 bytes[92743:93802]; lines 1659-1685",
+    "artifact_name": "Pasted text(7).txt main orchestration call-sites",
+    "repository": null,
+    "ref_or_revision": null,
+    "path": "/Pasted text(7).txt"
+  },
+  "content_sha256": "35aa9263150b129cef76d1a9d5c5cb30aa82404d67ef45900bdc24fb1bb96ad3",
+  "retrieval_status": "partially_retrieved",
+  "provenance_evidence": [
+    "Parent whole-file SHA-256: 548a7a5595bd5d81863fbc8815e45e0b0423c51712883b585135cfea3d369752",
+    "Exact byte range and line range: bytes[92743:93802]; lines 1659-1685"
+  ],
+  "limitations": [
+    "Excerpt is preserved as an immutable byte range; AST parsing and executable validity not established",
+    "Not authenticated canonical source",
+    "No merge or normalization performed"
+  ],
+  "attribution_edges": [
+    {
+      "source_node_id": "SRC-P7-HISTORICAL-COMPILATION-001",
+      "relationship": "excerpted_from",
+      "transformation": "Byte-exact extraction only; no rewriting"
+    }
+  ],
+  "created_at": "2026-11-27T01:56:00Z"
+}
