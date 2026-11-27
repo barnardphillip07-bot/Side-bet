@@ -31,7 +31,7 @@ The inventory includes root-level files and nested DingoOS and encyclopaedia dir
 `docs/dingoos/recovery-engine/evidence/receipts/SEARCH-COVERAGE-DINGOOS-LIBRARY-ROOT-20261127.json`
 
 - Pass 1 inventory SHA-256: `fe2eca400d3392c117f3abf5ae4a1cb60f3d333579f6ecf04d9363e6baae32e5`
-- Initial Pass 2 metadata inventory SHA-256: `e528226687e7138581ba63dcfbc2f44fa89a4e84e5f9d98cb3026f36bba7fcd5`
+- Initial Pass 2 metadata inventory SHA-256: `e528226687e7138581ba63dcfbc2f44fa89a4e84e5f9d98cb3026f36bba7fcd5`  \n- Updated Pass 2 inventory SHA-256: `593ac5db4dae3d455a716320971328171b550d352edeca837848cd398aec45e9`
 - Receipt conclusion: `UNRESOLVED`
 - Coverage assessment: `incomplete`
 
@@ -216,8 +216,8 @@ RE-005 remains adopted and binding, but runtime integration is blocked pending r
 - Six source-bearing regions were byte-indexed and hashed.
 - Two gateway variants were compared without merging.
 - Parent and excerpt lineage nodes were recorded.
-- The Library-root receipt remains `UNRESOLVED` / incomplete because the entire Library's file contents, archive members and conversation history have not been inspected.
-- Side-bet contract CI: **14 passed**. This validates the recovery-engine schemas and saved inventory receipt, not the DingoOS source compilation or DDEP runtime.
+- The updated Library-root receipt remains `UNRESOLVED` / incomplete because only one of 594 files has been materialized and byte-indexed; archive members and complete conversation history have not been inspected.
+- Side-bet contract CI: **16 passed**. This validates the recovery-engine schemas, saved inventory receipt, embedded-source index records, lineage nodes and non-merging diff report; it does not execute the DingoOS source compilation or DDEP runtime.
 - No DDEP source tests, build, target execution or consequential dispatch were run.
 
 ## 11. Next controlled recovery sequence
