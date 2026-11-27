@@ -66,7 +66,7 @@ These structural conditions are necessary, not sufficient. The declared search u
 
 ## Validation status and next implementation tasks
 
-At this point, the JSON documents have been written to the Side-bet branch and read-back validation is still required. No runtime validator, indexer, AST parser, graph tracer, invalidation worker or automated test has been implemented by these schema files alone.
+The five schemas were read back from the exact Side-bet branch, parsed as JSON, and passed Draft 2020-12 meta-schema checks in CI using the pinned validator. The contract test suite completed successfully: 13 passed. This is a verified first contract-validation increment, not verification of a complete recovery engine. No embedded-source indexer, general AST parser, graph tracer, NCP-03 invalidation worker or global Library scanner has been implemented by this increment.
 
 Next:
 1. Read back all five schemas from the exact branch and parse each as JSON.
