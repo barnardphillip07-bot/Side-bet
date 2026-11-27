@@ -1,0 +1,61 @@
+{
+  "schema_id": "SOURCE_ARTIFACT_INDEX_RECORD",
+  "schema_version": "0.1.0",
+  "artifact_id": "P7-MAIN-CALLSITE",
+  "parent_artifact": {
+    "path": "Library:/Pasted text(7).txt",
+    "sha256": "548a7a5595bd5d81863fbc8815e45e0b0423c51712883b585135cfea3d369752",
+    "size_bytes": 133685
+  },
+  "region": {
+    "byte_offset_start": 92743,
+    "byte_offset_end": 93802,
+    "line_start": 1659,
+    "line_end": 1685,
+    "content_sha256": "35aa9263150b129cef76d1a9d5c5cb30aa82404d67ef45900bdc24fb1bb96ad3"
+  },
+  "classification": "other_embedded_source",
+  "tags": [
+    "CONTAINS_EMBEDDED_SOURCE",
+    "PARSE_INCOMPLETE"
+  ],
+  "symbols": [
+    {
+      "kind": "function",
+      "identifier": "main",
+      "signature": "main()"
+    },
+    {
+      "kind": "callsite",
+      "identifier": "DingoOSGateway.__init__",
+      "signature": "DingoOSGateway(c3po_agent=c3po, c4po_agent=c4po)"
+    },
+    {
+      "kind": "callsite",
+      "identifier": "HorizonDashboard.__init__",
+      "signature": "HorizonDashboard(gateway=gateway)"
+    },
+    {
+      "kind": "callsite",
+      "identifier": "HorizonDashboard.render_claim_submission",
+      "signature": "horizon.render_claim_submission(...)"
+    },
+    {
+      "kind": "callsite",
+      "identifier": "HorizonDashboard.render_verification_results",
+      "signature": "horizon.render_verification_results(...)"
+    }
+  ],
+  "extractor": {
+    "name": "manual-provenance-index",
+    "version": "0.1.0",
+    "grammar": "Python-like embedded source in mixed prose/text; AST parsing not performed",
+    "canonicalization_profile": null
+  },
+  "status": "partial",
+  "errors": [
+    "Exact byte range extracted from original file bytes; syntax/AST validity not established",
+    "This source excerpt is not evidence of DDEP target implementation"
+  ],
+  "coverage_receipt_ref": "docs/dingoos/recovery-engine/evidence/receipts/SEARCH-COVERAGE-DINGOOS-LIBRARY-ROOT-20261127.json"
+}
