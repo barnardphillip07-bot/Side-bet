@@ -66,7 +66,7 @@ These structural conditions are necessary, not sufficient. The declared search u
 
 ## Validation status and next implementation tasks
 
-The five schemas were read back from the exact Side-bet branch, parsed as JSON, and passed Draft 2020-12 meta-schema checks in CI using the pinned validator. The contract test suite completed successfully: 13 passed. This is a verified first contract-validation increment, not verification of a complete recovery engine. No embedded-source indexer, general AST parser, graph tracer, NCP-03 invalidation worker or global Library scanner has been implemented by this increment.
+The five schemas were read back from the exact Side-bet branch, parsed as JSON, and passed Draft 2020-12 meta-schema checks in CI using the pinned validator. The contract test suite now completes successfully: 16 passed, including the saved recursive Library inventory receipt, six embedded-source index records, seven lineage nodes and the non-merging gateway diff. This is a verified contract/index-record validation increment, not verification of a complete recovery engine. No embedded-source indexer, general AST parser, graph tracer, NCP-03 invalidation worker or global Library scanner has been implemented by this increment.
 
 Next:
 1. Read back all five schemas from the exact branch and parse each as JSON.
