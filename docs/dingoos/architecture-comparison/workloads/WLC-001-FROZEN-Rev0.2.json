@@ -1,0 +1,161 @@
+{
+  "workload_id": "WLC-001",
+  "name": "CSRE1/CSRE2 resonance-analysis and verification vertical slice",
+  "status": "FROZEN_WORKLOAD_DEFINITION",
+  "decision": {
+    "authority": "User confirmation in conversation dated 2026-11-27",
+    "decision": "Use WLC-001 as the common workload for centralized-modular, federated, and local-first-hybrid architecture comparisons.",
+    "scope_note": "The workload identity, deterministic core inputs, and reference algorithm are frozen. Architecture-specific run protocol, resource envelope, repetitions, and performance thresholds remain separate and are not yet frozen."
+  },
+  "source_artifact": {
+    "classification": "HISTORICAL_COMPILATION",
+    "library_path": "/Pasted text(7).txt",
+    "library_file_id": "file_00000000f90c81fa88a3b0980b5d9d69",
+    "size_bytes": 133685,
+    "line_count": 2778,
+    "sha256": "548a7a5595bd5d81863fbc8815e45e0b0423c51712883b585135cfea3d369752"
+  },
+  "source_regions": [
+    {
+      "component": "C3PO proposer / C4PO verifier",
+      "lines": [
+        98,
+        123
+      ],
+      "byte_range": [
+        9456,
+        11166
+      ],
+      "sha256": "ba4d793d8dcbe48d49013a6ff6d7823843c9a42d9f7bd18dbe5b4ec6cd66cdae"
+    },
+    {
+      "component": "DigitalTwin transient simulation",
+      "lines": [
+        135,
+        166
+      ],
+      "byte_range": [
+        12090,
+        13403
+      ],
+      "sha256": "1cb95d3cbb612aa5c31b94588e8accaf84511be427ec44235212e3cebad77556"
+    },
+    {
+      "component": "SensorHardwareGateway",
+      "lines": [
+        167,
+        195
+      ],
+      "byte_range": [
+        13403,
+        14517
+      ],
+      "sha256": "086b4eb8a84a38adcb4c7367689e58976350e54836e03711dc37c76602205317"
+    },
+    {
+      "component": "main orchestration excerpt",
+      "lines": [
+        1659,
+        1685
+      ],
+      "byte_range": [
+        92743,
+        93802
+      ],
+      "sha256": "35aa9263150b129cef76d1a9d5c5cb30aa82404d67ef45900bdc24fb1bb96ad3"
+    }
+  ],
+  "inputs": {
+    "mass_kg": 5,
+    "stiffness_N_per_m": 500,
+    "damping_N_s_per_m": 0.05,
+    "duration_s": 2,
+    "time_step_s": 0.001,
+    "initial_displacement_m": 1,
+    "initial_velocity_m_per_s": 0,
+    "integration_steps": 2000
+  },
+  "approaches": {
+    "alpha_A_analytical_damped": {
+      "method": "Underdamped natural frequency from the linear viscously damped oscillator model",
+      "equation": "f_d = sqrt(k/m - (c/(2m))^2) / (2*pi)",
+      "derived_expected_frequency_Hz": 1.591549231975262
+    },
+    "reference_analytical_undamped": {
+      "method": "Undamped natural frequency; retained as a boundary/reference value, not the primary damped-system oracle",
+      "equation": "f_n = sqrt(k/m) / (2*pi)",
+      "derived_expected_frequency_Hz": 1.5915494309189535
+    },
+    "alpha_B_numerical": {
+      "method": "Source-faithful explicit Euler state update and zero-crossing estimator from the historical DigitalTwin fragment",
+      "derived_expected_frequency_Hz": 1.5923566878980893,
+      "zero_crossing_times_s": [
+        0.157,
+        0.47100000000000003,
+        0.785,
+        1.099,
+        1.413,
+        1.727
+      ],
+      "half_periods_s": [
+        0.31400000000000006,
+        0.314,
+        0.31399999999999995,
+        0.31400000000000006,
+        0.31400000000000006
+      ],
+      "mean_half_period_s": 0.314
+    },
+    "beta_verification": {
+      "method": "Independent calculation of damped-system characteristic roots from lambda^2 + (c/m)lambda + k/m = 0; compare its imaginary eigenfrequency with the numerical estimate.",
+      "independent_of_alpha_implementation": true,
+      "derived_expected_frequency_Hz": 1.591549231975262,
+      "derived_absolute_difference_vs_numerical_Hz": 0.0008074559228272715,
+      "note": "The characteristic-root route is separately implemented from Alpha A's closed-form damped-frequency function. Agreement of the two analytical routes is a mathematical cross-check, not empirical validation or an architecture-performance threshold."
+    }
+  },
+  "derived_harness": {
+    "path": "benchmarks/dingoos/wlc_001.py",
+    "classification": "DERIVED_RECONSTRUCTION",
+    "dependencies": "Python standard library only",
+    "determinism": "Fixed inputs; no wall clock, random identifiers, sensor noise, network access, or external services",
+    "test_path": "tests/dingoos/test_wlc_001.py",
+    "test_count": 7,
+    "local_test_result": "PASS — 7/7 unittest cases",
+    "test_scope": "Analytical references, independent beta characteristic-root verification, source-faithful numerical reference, repeatability, epistemic-limit label, input validation, and underdamped-domain validation."
+  },
+  "workflow": {
+    "alpha_A": "Compute analytical damped natural-frequency reference.",
+    "alpha_B": "Compute numerical transient response using the recovered DigitalTwin update sequence.",
+    "beta": "Independently recompute the damped analytical reference and report numerical discrepancy.",
+    "gamma": "No production authority or consequential target operation is present in WLC-001; authority/fencing gates remain owned by existing test families and target-source verification.",
+    "sigma": "Produce a provenance-linked comparison view without promoting model agreement to empirical or physical validation."
+  },
+  "determinism_and_exclusions": {
+    "clock_and_ids": "Historical agent code uses wall-clock-derived IDs; excluded from the deterministic numerical core. Architecture integration may use fixed IDs only if declared in the run manifest.",
+    "sensor_noise": "Historical SensorHardwareGateway uses Gaussian noise without a source-recorded seed; excluded from the frozen deterministic core. A separately versioned noisy-sensor extension requires a declared RNG algorithm and seed.",
+    "source_integrity": "The historical source compilation is not modified. The harness is a separate derived implementation with explicit attribution.",
+    "integration_gap": "The historical main orchestration hardcodes simulated_measurement=1.59155 and does not call the separate DigitalTwin implementation. The harness explicitly composes the two methods; this is new derived benchmark code, not a recovered original call-site."
+  },
+  "epistemic_limit": "The result demonstrates internal analytical/numerical model comparison only. It does not constitute empirical measurement, experimental validation, hardware validation, or physical validation.",
+  "architecture_candidates": [
+    "CENTRALIZED_MODULAR",
+    "FEDERATED",
+    "LOCAL_FIRST_HYBRID"
+  ],
+  "execution_protocol": {
+    "status": "NOT_YET_FROZEN",
+    "remaining_items": [
+      "Preserve separate Alpha A closed-form and Beta characteristic-root implementations in every architecture adapter; do not route Beta through Alpha A's function.",
+      "Pin each architecture implementation commit and document fidelity asymmetries.",
+      "Freeze common host/runtime resource envelope and isolation conditions.",
+      "Freeze workload invocation, concurrency/load schedule, fault-injection schedule, and repetition count.",
+      "Freeze raw observation schema, metric calculations, and stopping rule.",
+      "Record owner-defined architecture performance thresholds after baseline measurements; do not invent them."
+    ]
+  },
+  "numeric_architecture_performance_thresholds": null,
+  "architecture_selection": "NOT_SELECTED",
+  "consequential_dispatch": "HOLD_NO_GO",
+  "specification_revision": "Rev0.2"
+}
