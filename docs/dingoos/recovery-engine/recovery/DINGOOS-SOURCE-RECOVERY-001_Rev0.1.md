@@ -218,7 +218,7 @@ RE-005 remains adopted and binding, but runtime integration is blocked pending r
 - Two gateway variants were compared without merging.
 - Parent and excerpt lineage nodes were recorded.
 - The updated Library-root receipt remains `UNRESOLVED` / incomplete because only one of 594 files has been materialized and byte-indexed; archive members and complete conversation history have not been inspected.
-- Side-bet contract CI: **26 passed**. This validates the recovery-engine schemas, saved inventory receipt, embedded-source index records, lineage nodes and non-merging diff report; it does not execute the DingoOS source compilation or DDEP runtime.
+- Side-bet contract CI: **27 passed**. This validates the recovery-engine schemas, saved inventory receipt, embedded-source index records, lineage nodes and non-merging diff report; it does not execute the DingoOS source compilation or DDEP runtime.
 - No DDEP source tests, build, target execution or consequential dispatch were run.
 
 ## 11. Next controlled recovery sequence
