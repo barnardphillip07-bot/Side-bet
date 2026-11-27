@@ -1,0 +1,133 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://side-bet.invalid/dingoos/recovery-engine/v0.1/source-lineage-node.schema.json",
+  "title": "DingoOS immutable source lineage node",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_id",
+    "schema_version",
+    "node_id",
+    "tier",
+    "source_identity",
+    "content_sha256",
+    "retrieval_status",
+    "provenance_evidence",
+    "limitations"
+  ],
+  "properties": {
+    "schema_id": {
+      "const": "SOURCE_LINEAGE_NODE"
+    },
+    "schema_version": {
+      "const": "0.1.0"
+    },
+    "node_id": {
+      "type": "string"
+    },
+    "tier": {
+      "enum": [
+        "AUTHENTICATED_CANONICAL",
+        "REVERSE_ENGINEERED_BASELINE",
+        "HISTORICAL_COMPILATION",
+        "GENERATED_SOURCE",
+        "PARTIAL_EXCERPT",
+        "DERIVED_RECONSTRUCTION"
+      ]
+    },
+    "source_identity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "locator",
+        "artifact_name"
+      ],
+      "properties": {
+        "locator": {
+          "type": "string"
+        },
+        "artifact_name": {
+          "type": "string"
+        },
+        "repository": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "ref_or_revision": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "path": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "content_sha256": {
+      "type": "string",
+      "pattern": "^[a-fA-F0-9]{64}$"
+    },
+    "retrieval_status": {
+      "enum": [
+        "retrieved",
+        "partially_retrieved",
+        "inaccessible",
+        "unretrieved",
+        "generated"
+      ]
+    },
+    "provenance_evidence": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "limitations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "attribution_edges": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "source_node_id",
+          "relationship"
+        ],
+        "properties": {
+          "source_node_id": {
+            "type": "string"
+          },
+          "relationship": {
+            "enum": [
+              "derived_from",
+              "excerpted_from",
+              "generated_from",
+              "supersedes",
+              "compared_with"
+            ]
+          },
+          "transformation": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      }
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}
