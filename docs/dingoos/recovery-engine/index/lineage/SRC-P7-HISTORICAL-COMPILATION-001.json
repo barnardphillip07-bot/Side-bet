@@ -16,7 +16,8 @@
     "Library metadata size 133685 bytes",
     "Raw bytes materialized from the Library artifact for byte-accurate indexing",
     "2778 text lines",
-    "Recursive Library root inventory receipt SEARCH-COVERAGE-DINGOOS-LIBRARY-ROOT-20261127"
+    "Recursive Library root inventory receipt SEARCH-COVERAGE-DINGOOS-LIBRARY-ROOT-20261127",
+    "Updated Pass 2 coverage receipt: docs/dingoos/recovery-engine/evidence/receipts/SEARCH-COVERAGE-DINGOOS-LIBRARY-ROOT-20261127-PASS2-001.json"
   ],
   "limitations": [
     "Mixed prose, code fragments, architecture descriptions and historical instructions; not a clean source repository checkout",
