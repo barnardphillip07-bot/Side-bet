@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from copy import deepcopy
+import json
+from pathlib import Path
 
 import pytest
 
@@ -164,3 +165,15 @@ def test_false_reachability_requires_identified_bypass():
 
 def test_unverified_reachability_accepts_open_world_limitations():
     validate_reachability_report(reachability("UNVERIFIED"))
+
+
+
+def test_saved_library_root_coverage_receipt_is_integrity_consistent():
+    repository_root = Path(__file__).resolve().parents[2]
+    receipt_path = repository_root / "docs/dingoos/recovery-engine/evidence/receipts/SEARCH-COVERAGE-DINGOOS-LIBRARY-ROOT-20261127.json"
+    saved = json.loads(receipt_path.read_text(encoding="utf-8"))
+    validate_coverage_receipt(saved)
+    assert saved["conclusion_scope"] == "UNRESOLVED"
+    assert saved["coverage_assessment"] == "incomplete"
+    assert saved["pass_1_root_inventory"]["entry_count"] == 653
+    assert saved["pass_2_deep_inventory"]["entry_count"] == 594
