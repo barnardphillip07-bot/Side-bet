@@ -1,0 +1,28 @@
+{
+  "schema_id": "SOURCE_LINEAGE_NODE",
+  "schema_version": "0.1.0",
+  "node_id": "SRC-P7-HISTORICAL-COMPILATION-001",
+  "tier": "HISTORICAL_COMPILATION",
+  "source_identity": {
+    "locator": "ChatGPT Library file_id=file_00000000f90c81fa88a3b0980b5d9d69",
+    "artifact_name": "Pasted text(7).txt",
+    "repository": null,
+    "ref_or_revision": null,
+    "path": "/Pasted text(7).txt"
+  },
+  "content_sha256": "548a7a5595bd5d81863fbc8815e45e0b0423c51712883b585135cfea3d369752",
+  "retrieval_status": "retrieved",
+  "provenance_evidence": [
+    "Library metadata size 133685 bytes",
+    "Raw bytes materialized from the Library artifact for byte-accurate indexing",
+    "2778 text lines",
+    "Recursive Library root inventory receipt SEARCH-COVERAGE-DINGOOS-LIBRARY-ROOT-20261127"
+  ],
+  "limitations": [
+    "Mixed prose, code fragments, architecture descriptions and historical instructions; not a clean source repository checkout",
+    "No authenticated commit/tree identity established",
+    "Relationship to the user's reverse-engineered canonical working baseline remains to be reconciled",
+    "No DDEP or DispatchOutcome identifiers found in this artifact"
+  ],
+  "created_at": "2026-11-27T01:56:00Z"
+}
