@@ -181,6 +181,10 @@ def _fenced_blocks(
         code_start, code_end = opening.end(), close_start
         code = data[code_start:code_end]
         covered.append((opening.start(), close_end))
+        if not code:
+            position = close_end
+            index += 1
+            continue
         start_line = data[:code_start].count(b"\n") + 1
         end_line = start_line + code.count(b"\n")
         language = opening.group(1).decode("ascii", errors="ignore").lower()
