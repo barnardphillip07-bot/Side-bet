@@ -26,6 +26,8 @@ from benchmarks.dingoos.wlc_001 import (
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 WORKLOAD_SPEC_PATH = "docs/dingoos/architecture-comparison/workloads/WLC-001-FROZEN-Rev0.2.json"
+WORKLOAD_SPEC_GIT_BLOB_SHA1 = "9517151b6d34ffb6a7686634617ca5fd1592d202"
+WORKLOAD_HARNESS_GIT_BLOB_SHA1 = "c4f381fa8298d7d103b6236bb2d9b6a006628b4d"
 SOURCE_ARTIFACT_SHA256 = "548a7a5595bd5d81863fbc8815e45e0b0423c51712883b585135cfea3d369752"
 
 
@@ -218,9 +220,14 @@ def run_all(inputs: WLC001Inputs | None = None) -> dict[str, Any]:
         "run_classification": "DERIVED_ARCHITECTURE_TOPOLOGY_SMOKE_TEST_NOT_ARCHITECTURE_ACCEPTANCE",
         "run_manifest": {
             "workload_spec_path": WORKLOAD_SPEC_PATH,
+            "workload_spec_git_blob_sha1": WORKLOAD_SPEC_GIT_BLOB_SHA1,
+            "workload_harness_git_blob_sha1": WORKLOAD_HARNESS_GIT_BLOB_SHA1,
             "source_artifact_sha256": SOURCE_ARTIFACT_SHA256,
             "git_commit_sha": os.environ.get("GITHUB_SHA") or os.environ.get("DINGOOS_COMMIT_SHA"),
             "git_branch": os.environ.get("GITHUB_REF_NAME") or os.environ.get("DINGOOS_GIT_BRANCH"),
+            "github_run_id": os.environ.get("GITHUB_RUN_ID"),
+            "github_run_attempt": os.environ.get("GITHUB_RUN_ATTEMPT"),
+            "execution_source": "GITHUB_ACTIONS" if os.environ.get("GITHUB_ACTIONS") == "true" else "LOCAL",
             "python_version": platform.python_version(),
             "platform": platform.platform(),
             "inputs": asdict(inputs),
