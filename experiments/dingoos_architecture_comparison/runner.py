@@ -29,12 +29,15 @@ WORKLOAD_SPEC_PATH = "docs/dingoos/architecture-comparison/workloads/WLC-001-FRO
 SOURCE_ARTIFACT_SHA256 = "548a7a5595bd5d81863fbc8815e45e0b0423c51712883b585135cfea3d369752"
 
 
-def _run_isolated_role(role: str, inputs: WLC001Inputs) -> dict[str, Any]:
+def _run_isolated_role(role: str, inputs: WLC001Inputs, inject_failure: bool = False) -> dict[str, Any]:
     env = os.environ.copy()
     existing = env.get("PYTHONPATH", "")
     env["PYTHONPATH"] = str(REPO_ROOT) + (os.pathsep + existing if existing else "")
+    command = [sys.executable, "-m", "experiments.dingoos_architecture_comparison.worker", "--role", role]
+    if inject_failure:
+        command.append("--inject-failure")
     completed = subprocess.run(
-        [sys.executable, "-m", "experiments.dingoos_architecture_comparison.worker", "--role", role],
+        command,
         input=json.dumps(asdict(inputs), sort_keys=True),
         text=True,
         capture_output=True,
@@ -130,6 +133,84 @@ def run_local_first_hybrid(inputs: WLC001Inputs | None = None) -> dict[str, Any]
     )
 
 
+
+def _ft02_summary(architecture_id: str, outcomes: dict[str, dict[str, Any]], elapsed_wall_ns: int) -> dict[str, Any]:
+    completed = sorted(role for role, value in outcomes.items() if value["status"] == "COMPLETED")
+    failed = sorted(role for role, value in outcomes.items() if value["status"] == "FAILED")
+    missing = sorted(role for role in ("alpha_a", "alpha_b", "beta") if role not in completed)
+    status = "INCOMPLETE" if failed or missing else "COMPLETE"
+    return {
+        "architecture_id": architecture_id,
+        "fault_id": "FT-02",
+        "execution_scope": "WLC-001 topology prototype subset only; not full FT-02 acceptance",
+        "workflow_status": status,
+        "role_outcomes": outcomes,
+        "completed_roles": completed,
+        "failed_roles": failed,
+        "sigma": {
+            "status": status,
+            "missing_contributions": missing,
+            "accepted_as_complete": status == "COMPLETE",
+            "no_silent_promotion": True,
+        },
+        "timing": {
+            "elapsed_wall_ns": elapsed_wall_ns,
+            "classification": "DIAGNOSTIC_ONLY_NOT_AN_ACCEPTANCE_METRIC",
+        },
+    }
+
+
+def run_ft02_centralized(inputs: WLC001Inputs | None = None) -> dict[str, Any]:
+    """Inject Alpha-B failure in the single-process sequential baseline."""
+    inputs = inputs or WLC001Inputs()
+    started = time.perf_counter_ns()
+    outcomes: dict[str, dict[str, Any]] = {}
+    try:
+        outcomes["alpha_a"] = {"status": "COMPLETED", "result": {"frequency_hz": analytical_damped_frequency_hz(inputs)}}
+        raise RuntimeError("FT-02 injected Alpha-B module failure in centralized process")
+    except RuntimeError as exc:
+        outcomes["alpha_b"] = {"status": "FAILED", "failure": str(exc)}
+    # Sequential central execution does not proceed to Beta after the Alpha-B failure.
+    elapsed = time.perf_counter_ns() - started
+    return _ft02_summary("CENTRALIZED_MODULAR", outcomes, elapsed)
+
+
+def run_ft02_federated_process_surrogate(inputs: WLC001Inputs | None = None) -> dict[str, Any]:
+    """Crash only the Alpha-B worker; collect unaffected Alpha-A and Beta results."""
+    inputs = inputs or WLC001Inputs()
+    started = time.perf_counter_ns()
+    with ThreadPoolExecutor(max_workers=3) as pool:
+        futures = {
+            "alpha_a": pool.submit(_run_isolated_role, "alpha_a", inputs),
+            "alpha_b": pool.submit(_run_isolated_role, "alpha_b", inputs, True),
+            "beta": pool.submit(_run_isolated_role, "beta", inputs),
+        }
+        outcomes: dict[str, dict[str, Any]] = {}
+        for role, future in futures.items():
+            try:
+                outcomes[role] = {"status": "COMPLETED", "result": future.result()}
+            except subprocess.CalledProcessError:
+                outcomes[role] = {"status": "FAILED", "failure": "isolated worker exited non-zero"}
+    elapsed = time.perf_counter_ns() - started
+    return _ft02_summary("FEDERATED_PROCESS_ISOLATED_SURROGATE", outcomes, elapsed)
+
+
+def run_ft02_local_first_hybrid(inputs: WLC001Inputs | None = None) -> dict[str, Any]:
+    """Catch a local Alpha-B module failure at its boundary while Beta continues isolated."""
+    inputs = inputs or WLC001Inputs()
+    started = time.perf_counter_ns()
+    outcomes: dict[str, dict[str, Any]] = {
+        "alpha_a": {"status": "COMPLETED", "result": {"frequency_hz": analytical_damped_frequency_hz(inputs)}}
+    }
+    try:
+        raise RuntimeError("FT-02 injected Alpha-B local-module failure")
+    except RuntimeError as exc:
+        outcomes["alpha_b"] = {"status": "FAILED", "failure": str(exc)}
+    outcomes["beta"] = {"status": "COMPLETED", "result": _run_isolated_role("beta", inputs)}
+    elapsed = time.perf_counter_ns() - started
+    return _ft02_summary("LOCAL_FIRST_HYBRID", outcomes, elapsed)
+
+
 def run_all(inputs: WLC001Inputs | None = None) -> dict[str, Any]:
     inputs = inputs or WLC001Inputs()
     return {
@@ -149,6 +230,13 @@ def run_all(inputs: WLC001Inputs | None = None) -> dict[str, Any]:
             run_federated_process_surrogate(inputs),
             run_local_first_hybrid(inputs),
         ],
+        "fault_experiments": {
+            "FT-02": [
+                run_ft02_centralized(inputs),
+                run_ft02_federated_process_surrogate(inputs),
+                run_ft02_local_first_hybrid(inputs),
+            ]
+        },
         "disposition": {
             "architecture_selected": False,
             "performance_thresholds_defined": False,
