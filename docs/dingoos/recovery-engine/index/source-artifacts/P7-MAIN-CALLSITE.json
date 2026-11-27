@@ -57,5 +57,5 @@
     "Exact byte range extracted from original file bytes; syntax/AST validity not established",
     "This source excerpt is not evidence of DDEP target implementation"
   ],
-  "coverage_receipt_ref": "docs/dingoos/recovery-engine/evidence/receipts/SEARCH-COVERAGE-DINGOOS-LIBRARY-ROOT-20261127.json"
+  "coverage_receipt_ref": "docs/dingoos/recovery-engine/evidence/receipts/SEARCH-COVERAGE-DINGOOS-LIBRARY-ROOT-20261127-PASS2-001.json"
 }
