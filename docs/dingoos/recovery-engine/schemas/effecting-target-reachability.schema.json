@@ -183,5 +183,70 @@
         "UNVERIFIED"
       ]
     }
-  }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "effecting_target_bound": {
+            "const": "TRUE"
+          }
+        },
+        "required": [
+          "effecting_target_bound"
+        ]
+      },
+      "then": {
+        "properties": {
+          "analysis": {
+            "properties": {
+              "closed_world_assumption": {
+                "const": true
+              },
+              "uninspected_dependencies": {
+                "maxItems": 0
+              },
+              "dynamic_boundaries": {
+                "maxItems": 0
+              },
+              "bypass_paths": {
+                "maxItems": 0
+              }
+            },
+            "required": [
+              "closed_world_assumption",
+              "uninspected_dependencies",
+              "bypass_paths"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "effecting_target_bound": {
+            "const": "FALSE"
+          }
+        },
+        "required": [
+          "effecting_target_bound"
+        ]
+      },
+      "then": {
+        "properties": {
+          "analysis": {
+            "properties": {
+              "bypass_paths": {
+                "minItems": 1
+              }
+            },
+            "required": [
+              "bypass_paths"
+            ]
+          }
+        }
+      }
+    }
+  ]
 }
