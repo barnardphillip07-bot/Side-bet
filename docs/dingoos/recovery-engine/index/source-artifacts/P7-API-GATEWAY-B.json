@@ -1,0 +1,56 @@
+{
+  "schema_id": "SOURCE_ARTIFACT_INDEX_RECORD",
+  "schema_version": "0.1.0",
+  "artifact_id": "P7-API-GATEWAY-B",
+  "parent_artifact": {
+    "path": "Library:/Pasted text(7).txt",
+    "sha256": "548a7a5595bd5d81863fbc8815e45e0b0423c51712883b585135cfea3d369752",
+    "size_bytes": 133685
+  },
+  "region": {
+    "byte_offset_start": 88535,
+    "byte_offset_end": 90627,
+    "line_start": 1559,
+    "line_end": 1614,
+    "content_sha256": "596568aeffced29b0664627ef2fad0e6acf9d4558207fb40ca561b6bb4cd4f1d"
+  },
+  "classification": "other_embedded_source",
+  "tags": [
+    "CONTAINS_EMBEDDED_SOURCE",
+    "PARSE_INCOMPLETE"
+  ],
+  "symbols": [
+    {
+      "kind": "class",
+      "identifier": "APIRequest",
+      "signature": "class APIRequest(BaseModel)"
+    },
+    {
+      "kind": "class",
+      "identifier": "APIResponse",
+      "signature": "class APIResponse(BaseModel)"
+    },
+    {
+      "kind": "class",
+      "identifier": "DingoOSGateway",
+      "signature": "class DingoOSGateway"
+    },
+    {
+      "kind": "method",
+      "identifier": "DingoOSGateway.dispatch",
+      "signature": "dispatch(self, request: APIRequest) -> APIResponse"
+    }
+  ],
+  "extractor": {
+    "name": "manual-provenance-index",
+    "version": "0.1.0",
+    "grammar": "Python-like embedded source in mixed prose/text; AST parsing not performed",
+    "canonicalization_profile": null
+  },
+  "status": "partial",
+  "errors": [
+    "Exact byte range extracted from original file bytes; syntax/AST validity not established",
+    "This source excerpt is not evidence of DDEP target implementation"
+  ],
+  "coverage_receipt_ref": "docs/dingoos/recovery-engine/evidence/receipts/SEARCH-COVERAGE-DINGOOS-LIBRARY-ROOT-20261127.json"
+}
