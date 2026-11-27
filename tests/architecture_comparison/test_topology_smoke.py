@@ -4,6 +4,9 @@ from experiments.dingoos_architecture_comparison.runner import (
     run_centralized,
     run_federated_process_surrogate,
     run_local_first_hybrid,
+    run_ft02_centralized,
+    run_ft02_federated_process_surrogate,
+    run_ft02_local_first_hybrid,
 )
 
 
@@ -26,6 +29,30 @@ class ArchitectureTopologySmokeTests(unittest.TestCase):
             self.assertFalse(assurance["beta_receives_alpha_outputs"])
             self.assertFalse(assurance["independent_codebase"])
             self.assertEqual(assurance["gate_d_independence"], "NOT_ESTABLISHED")
+
+    def test_ft02_centralized_failure_stops_sequential_workflow(self):
+        result = run_ft02_centralized()
+        self.assertEqual(result["workflow_status"], "INCOMPLETE")
+        self.assertEqual(result["completed_roles"], ["alpha_a"])
+        self.assertEqual(result["failed_roles"], ["alpha_b"])
+        self.assertEqual(result["sigma"]["missing_contributions"], ["alpha_b", "beta"])
+        self.assertFalse(result["sigma"]["accepted_as_complete"])
+
+    def test_ft02_federated_worker_failure_is_contained(self):
+        result = run_ft02_federated_process_surrogate()
+        self.assertEqual(result["workflow_status"], "INCOMPLETE")
+        self.assertEqual(result["completed_roles"], ["alpha_a", "beta"])
+        self.assertEqual(result["failed_roles"], ["alpha_b"])
+        self.assertEqual(result["sigma"]["missing_contributions"], ["alpha_b"])
+        self.assertFalse(result["sigma"]["accepted_as_complete"])
+
+    def test_ft02_hybrid_local_failure_is_contained_at_module_boundary(self):
+        result = run_ft02_local_first_hybrid()
+        self.assertEqual(result["workflow_status"], "INCOMPLETE")
+        self.assertEqual(result["completed_roles"], ["alpha_a", "beta"])
+        self.assertEqual(result["failed_roles"], ["alpha_b"])
+        self.assertEqual(result["sigma"]["missing_contributions"], ["alpha_b"])
+        self.assertFalse(result["sigma"]["accepted_as_complete"])
 
     def test_no_gamma_authority_or_consequential_effect_is_claimed(self):
         for variant in (run_centralized(), run_federated_process_surrogate(), run_local_first_hybrid()):
