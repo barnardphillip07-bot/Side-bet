@@ -264,6 +264,8 @@ def index_bytes(
     """Index one file's bytes. Offsets refer to original bytes or uncompressed ZIP-entry bytes."""
     if not isinstance(data, bytes):
         raise TypeError("data must be bytes")
+    if not data:
+        return []
     parent_sha = sha256_bytes(data)
     if len(data) > max_file_bytes:
         return [_record(
