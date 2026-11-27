@@ -17,6 +17,8 @@ import sys
 import time
 from typing import Any
 
+from experiments.dingoos_architecture_comparison.ft03_partition_model import run_all_ft03
+
 from benchmarks.dingoos.wlc_001 import (
     WLC001Inputs,
     analytical_damped_frequency_hz,
@@ -242,7 +244,8 @@ def run_all(inputs: WLC001Inputs | None = None) -> dict[str, Any]:
                 run_ft02_centralized(inputs),
                 run_ft02_federated_process_surrogate(inputs),
                 run_ft02_local_first_hybrid(inputs),
-            ]
+            ],
+            "FT-03": run_all_ft03(),
         },
         "disposition": {
             "architecture_selected": False,
