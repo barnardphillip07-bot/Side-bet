@@ -104,3 +104,10 @@ def test_size_limit_is_explicit():
     assert_records_are_schema_valid(records)
     assert records[0]["status"] == "unsupported"
     assert "size limit" in records[0]["extractor"]["grammar"]
+
+
+
+def test_empty_files_produce_no_invalid_zero_length_source_regions():
+    assert index_bytes("empty.json", b"") == []
+    assert index_bytes("empty.tla", b"") == []
+    assert index_bytes("empty.py", b"") == []
