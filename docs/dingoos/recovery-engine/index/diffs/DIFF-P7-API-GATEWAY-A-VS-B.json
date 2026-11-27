@@ -1,0 +1,69 @@
+{
+  "schema_id": "LINEAGE_DIFF_REPORT",
+  "schema_version": "0.1.0",
+  "report_id": "DIFF-P7-API-GATEWAY-A-VS-B",
+  "node_a": "SRC-P7-API-GATEWAY-A",
+  "node_b": "SRC-P7-API-GATEWAY-B",
+  "comparison_tool": {
+    "name": "manual source-structure comparison",
+    "version": "0.1",
+    "mode": "structural"
+  },
+  "comparison_status": "partial",
+  "only_in_a": [
+    "Claim dictionary key uses claim.id",
+    "Evidence dictionary key uses evidence.id",
+    "Response serializes claim epistemic status through .value",
+    "First excerpt's APIRequest action field has no inline action-example comment"
+  ],
+  "only_in_b": [
+    "Claim dictionary key uses claim.claim_id",
+    "Evidence dictionary key uses evidence.evidence_id",
+    "Response returns claim.epistemic_status without explicit .value conversion",
+    "APIRequest action comment lists SUBMIT_CLAIM, EXECUTE_VERIFICATION, FETCH_LINEAGE"
+  ],
+  "matching": [
+    "APIRequest and APIResponse classes are present in both excerpts",
+    "DingoOSGateway.dispatch(request) handles SUBMIT_RESONANCE_HYPOTHESIS and RUN_VERIFICATION",
+    "Claim submission delegates to C3PO proposer and stores claim in an in-memory dictionary",
+    "Verification delegates to C4PO skeptic and stores evidence in an in-memory dictionary",
+    "Unknown action returns ERROR"
+  ],
+  "conflicts": [
+    {
+      "identifier": "DingoOSGateway.dispatch claim identity access",
+      "a_signature": "self.claims[claim.id]",
+      "b_signature": "self.claims[claim.claim_id]",
+      "analysis": "Different claim identity attributes; exact schema/model lineage not established."
+    },
+    {
+      "identifier": "DingoOSGateway.dispatch evidence identity access",
+      "a_signature": "self.evidence_records[evidence.id]",
+      "b_signature": "self.evidence_records[evidence.evidence_id]",
+      "analysis": "Different evidence identity attributes; exact EvidenceRecord model revision not established."
+    },
+    {
+      "identifier": "DingoOSGateway.dispatch claim_status serialization",
+      "a_signature": "claim.epistemic_status.value",
+      "b_signature": "claim.epistemic_status",
+      "analysis": "Different API serialization semantics; downstream consumer compatibility is unresolved."
+    },
+    {
+      "identifier": "APIRequest.action documented values versus implemented cases",
+      "a_signature": "Implemented: SUBMIT_RESONANCE_HYPOTHESIS, RUN_VERIFICATION",
+      "b_signature": "Comment examples: SUBMIT_CLAIM, EXECUTE_VERIFICATION, FETCH_LINEAGE; implemented cases remain SUBMIT_RESONANCE_HYPOTHESIS, RUN_VERIFICATION",
+      "analysis": "FETCH_LINEAGE and the comment-listed aliases have no matching handler in this dispatch excerpt."
+    }
+  ],
+  "unresolved": [
+    "Which excerpt is later, authoritative or the reverse-engineered canonical baseline is not established.",
+    "The Horizon caller at SRC-P7-HORIZON-CALLERS reads claim['claim_id']; the first gateway variant's model field access uses claim.id. Compatibility depends on model_dump aliases not established in this artifact.",
+    "The main orchestration snippet imports C3POAgent and C4POAgent from a tests module; production module ownership is not established.",
+    "The main entrypoint snippet contains 'if name == \"main\"' rather than the standard __name__ guard; executable validity is not established.",
+    "The in-memory claims/evidence dictionaries do not establish durable target state, idempotency, DDEP dispatch or external effect receipts.",
+    "No DDEP, fence-v1, DispatchOutcome, ddep_resource_guard or external effecting-target symbol appears in the indexed source regions."
+  ],
+  "merge_performed": false,
+  "derived_reconstruction_node_id": null,
+  "attribution_complete": true
+}
