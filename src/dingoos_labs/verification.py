@@ -91,7 +91,7 @@ class ScientificEvidenceGate:
     claim: ScientificClaim
     integrity_verified_evidence_ids: tuple[str, ...]
     provenance_reviewed_evidence_ids: tuple[str, ...]
-    measurement_statuses: tuple[str, ...]
+    measurement_assessments: tuple[tuple[str, str], ...]
     statistical_analysis_reviewed: bool
     independent_review: IndependentReview
 
@@ -111,10 +111,16 @@ def assess_scientific_evidence(gate: ScientificEvidenceGate) -> GateDecision:
         blockers.append("raw evidence byte integrity not verified for every claim evidence reference")
     if not required_refs.issubset(set(gate.provenance_reviewed_evidence_ids)):
         blockers.append("source provenance not reviewed for every claim evidence reference")
-    if not gate.measurement_statuses:
-        blockers.append("no measurement assessments supplied")
-    elif any(x != "VALID" for x in gate.measurement_statuses):
-        blockers.append("one or more measurements are not VALID")
+    if not gate.measurement_assessments:
+        blockers.append("no evidence-linked measurement assessments supplied")
+    else:
+        measurement_ids = [item[0] for item in gate.measurement_assessments]
+        if len(measurement_ids) != len(set(measurement_ids)):
+            blockers.append("measurement assessment evidence IDs are not unique")
+        if any(evidence_id not in required_refs for evidence_id in measurement_ids):
+            blockers.append("measurement assessment references evidence outside the claim")
+        if any(status != "VALID" for _, status in gate.measurement_assessments):
+            blockers.append("one or more evidence-linked measurements are not VALID")
     if not gate.statistical_analysis_reviewed:
         blockers.append("statistical analysis has not been independently reviewed")
     if review.outcome != "PASS":
