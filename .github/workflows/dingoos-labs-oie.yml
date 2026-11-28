@@ -1,15 +1,17 @@
-name: DingoOS Objective Innovation Evaluator
+name: DingoOS MCIVP and Objective Innovation Tests
 
 on:
   push:
     branches:
       - labs/objective-innovation-engine-001
+      - labs/mcivp-001
   pull_request:
     branches:
       - dingoos/recovery-engine-adopted-requirements
+      - labs/objective-innovation-engine-001
 
 jobs:
-  oie-tests:
+  scientific-evidence-controls:
     runs-on: ubuntu-latest
     env:
       PYTHONPATH: src
