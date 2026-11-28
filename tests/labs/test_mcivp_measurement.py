@@ -71,6 +71,15 @@ def test_missing_or_out_of_limits_environment_is_invalid():
     assert outside.status == "INVALID"
 
 
+def test_invalid_environment_limits_rejected():
+    with pytest.raises(MeasurementError, match="invalid environmental limits"):
+        assess_measurement(
+            observation(), calibration(),
+            environment_limits={"temperature_C": (30.0, 10.0)},
+            independent_uncertainty_components=True,
+        )
+
+
 def test_naive_time_rejected():
     with pytest.raises(MeasurementError, match="timezone"):
         observation(measured_at="2026-11-28T00:00:00")
