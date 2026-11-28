@@ -1,5 +1,8 @@
 """Derived public-safe DingoOS laboratory engineering tools."""
-from .evidence import EvidenceError, EvidenceRecord, create_evidence_record, verify_evidence_bytes, verify_manifest
+from .evidence import (
+    EvidenceError, EvidenceRecord, create_evidence_record,
+    verify_evidence_bytes, verify_evidence_lineage, verify_manifest,
+)
 from .measurement import (
     CalibrationRecord, MeasurementAssessment, MeasurementError,
     MeasurementObservation, assess_measurement,
@@ -19,7 +22,7 @@ from .verification import (
 
 __all__ = [
     "EvidenceError", "EvidenceRecord", "create_evidence_record",
-    "verify_evidence_bytes", "verify_manifest",
+    "verify_evidence_bytes", "verify_evidence_lineage", "verify_manifest",
     "CalibrationRecord", "MeasurementAssessment", "MeasurementError",
     "MeasurementObservation", "assess_measurement",
     "Candidate", "CandidateResult", "Comparison", "Constraint", "EvaluationError",
