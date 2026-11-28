@@ -13,8 +13,8 @@ from .statistics import (
     bootstrap_mean_interval, describe,
 )
 from .verification import (
-    GateDecision, IndependentReview, ScientificEvidenceGate, VerificationError,
-    assess_scientific_evidence,
+    GateDecision, IndependentReview, ScientificClaim, ScientificEvidenceGate,
+    VerificationError, assess_scientific_evidence,
 )
 
 __all__ = [
@@ -26,6 +26,6 @@ __all__ = [
     "Measurement", "Metric", "Report", "evaluate",
     "BootstrapInterval", "DescriptiveSummary", "StatisticalError",
     "bootstrap_mean_interval", "describe",
-    "GateDecision", "IndependentReview", "ScientificEvidenceGate",
-    "VerificationError", "assess_scientific_evidence",
+    "GateDecision", "IndependentReview", "ScientificClaim",
+    "ScientificEvidenceGate", "VerificationError", "assess_scientific_evidence",
 ]
