@@ -70,6 +70,7 @@ class IndependentReview:
             raise VerificationError("reviewer must be independent of the originator")
         _required_tuple("methods", self.methods)
         _required_tuple("evidence_ids", self.evidence_ids)
+        _required_tuple("findings", self.findings)
         if self.outcome not in {"PASS", "FAIL", "INCONCLUSIVE"}:
             raise VerificationError("outcome must be PASS, FAIL or INCONCLUSIVE")
 
