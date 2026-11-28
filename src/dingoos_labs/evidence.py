@@ -55,8 +55,8 @@ class EvidenceRecord:
                      "original_filename", "transformation"):
             _nonblank(name, getattr(self, name))
         object.__setattr__(self, "acquired_at", _utc_timestamp(self.acquired_at))
-        if self.byte_length < 0:
-            raise EvidenceError("byte_length cannot be negative")
+        if not isinstance(self.byte_length, int) or isinstance(self.byte_length, bool) or self.byte_length < 0:
+            raise EvidenceError("byte_length must be a nonnegative integer")
         if len(self.sha256) != 64 or any(c not in "0123456789abcdef" for c in self.sha256):
             raise EvidenceError("sha256 must be 64 lowercase hexadecimal characters")
         if len(set(self.parent_evidence_ids)) != len(self.parent_evidence_ids):
@@ -120,3 +120,32 @@ def verify_evidence_bytes(record: EvidenceRecord, raw_bytes: bytes) -> bool:
 def verify_manifest(record: EvidenceRecord) -> bool:
     """Check internal manifest consistency, not source authenticity."""
     return record.manifest_sha256 == record.calculate_manifest_sha256()
+
+
+def verify_evidence_lineage(records: Iterable[EvidenceRecord]) -> bool:
+    """Require a complete, unique, acyclic parent graph for the supplied record set."""
+    items = tuple(records)
+    by_id = {item.evidence_id: item for item in items}
+    if len(by_id) != len(items):
+        raise EvidenceError("evidence IDs must be unique")
+    for item in items:
+        missing = set(item.parent_evidence_ids) - set(by_id)
+        if missing:
+            raise EvidenceError(f"{item.evidence_id}: missing parent evidence {sorted(missing)}")
+    visiting: set[str] = set()
+    visited: set[str] = set()
+
+    def visit(evidence_id: str) -> None:
+        if evidence_id in visiting:
+            raise EvidenceError("evidence lineage contains a cycle")
+        if evidence_id in visited:
+            return
+        visiting.add(evidence_id)
+        for parent_id in by_id[evidence_id].parent_evidence_ids:
+            visit(parent_id)
+        visiting.remove(evidence_id)
+        visited.add(evidence_id)
+
+    for evidence_id in by_id:
+        visit(evidence_id)
+    return True
