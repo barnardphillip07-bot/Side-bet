@@ -5,6 +5,8 @@ from dingoos_labs.verification import (
     assess_scientific_evidence,
 )
 
+ALL_EVIDENCE = ("EV-RAW-01", "EV-CAL-01", "EV-NULL-02")
+
 
 def claim():
     return ScientificClaim(
@@ -18,7 +20,7 @@ def claim():
     )
 
 
-def review(outcome="PASS", claim_id="CLAIM-01", evidence_ids=("EV-RAW-01", "EV-CAL-01", "EV-NULL-02")):
+def review(outcome="PASS", claim_id="CLAIM-01", evidence_ids=ALL_EVIDENCE):
     return IndependentReview(
         review_id="REV-01", claim_id=claim_id, originator_id="author-01",
         reviewer_id="reviewer-02", reviewed_at="2026-11-28T10:00:00Z",
@@ -31,7 +33,8 @@ def review(outcome="PASS", claim_id="CLAIM-01", evidence_ids=("EV-RAW-01", "EV-C
 
 def gate(**kwargs):
     values = dict(
-        claim=claim(), evidence_integrity_verified=True, provenance_reviewed=True,
+        claim=claim(), integrity_verified_evidence_ids=ALL_EVIDENCE,
+        provenance_reviewed_evidence_ids=ALL_EVIDENCE,
         measurement_statuses=("VALID", "VALID"), statistical_analysis_reviewed=True,
         independent_review=review(),
     )
@@ -69,11 +72,21 @@ def test_gate_blocks_unverified_measurement_and_failed_review():
 
 def test_gate_blocks_missing_provenance_and_integrity():
     result = assess_scientific_evidence(gate(
-        evidence_integrity_verified=False, provenance_reviewed=False,
+        integrity_verified_evidence_ids=(), provenance_reviewed_evidence_ids=(),
         measurement_statuses=(), statistical_analysis_reviewed=False,
     ))
     assert result.status == "BLOCKED"
     assert len(result.blockers) == 4
+
+
+def test_gate_requires_per_evidence_integrity_and_provenance():
+    result = assess_scientific_evidence(gate(
+        integrity_verified_evidence_ids=("EV-RAW-01", "EV-CAL-01"),
+        provenance_reviewed_evidence_ids=("EV-RAW-01", "EV-CAL-01"),
+    ))
+    assert result.status == "BLOCKED"
+    assert any("integrity" in x for x in result.blockers)
+    assert any("provenance" in x for x in result.blockers)
 
 
 def test_gate_requires_review_of_all_supporting_and_conflicting_evidence():
