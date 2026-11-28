@@ -121,12 +121,19 @@ def assess_measurement(
         reasons.append("measurement is outside calibrated range")
     observed_environment = dict(observation.environment)
     for key, bounds in (environment_limits or {}).items():
+        if not isinstance(bounds, tuple) or len(bounds) != 2:
+            raise MeasurementError(f"environment limits for {key} must be a (lower, upper) tuple")
+        low, high = bounds
+        if ((low is not None and not isfinite(low)) or
+                (high is not None and not isfinite(high)) or
+                (low is not None and high is not None and low > high)):
+            raise MeasurementError(f"invalid environmental limits for {key}")
         if key not in observed_environment:
             reasons.append(f"required environmental quantity missing: {key}")
             continue
-        low, high = bounds
         value = observed_environment[key]
-        if low is not None and value < low or high is not None and value > high:
+        if ((low is not None and value < low) or
+                (high is not None and value > high)):
             reasons.append(f"environment outside permitted calibration condition: {key}")
     combined = None
     if independent_uncertainty_components:
