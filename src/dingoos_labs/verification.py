@@ -1,4 +1,4 @@
-"""Independent scientific review gates for DingoOS MCIVP."""
+"""Independent scientific review and claim-to-evidence gates for DingoOS MCIVP."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -9,6 +9,37 @@ import json
 
 class VerificationError(ValueError):
     """Invalid scientific verification record."""
+
+
+def _required_tuple(name: str, values: tuple[str, ...]) -> None:
+    if not values or any(not isinstance(x, str) or not x.strip() for x in values):
+        raise VerificationError(f"{name} must contain nonblank entries")
+    if len(set(values)) != len(values):
+        raise VerificationError(f"{name} entries must be unique")
+
+
+@dataclass(frozen=True, slots=True)
+class ScientificClaim:
+    claim_id: str
+    statement: str
+    scope: str
+    supporting_evidence_ids: tuple[str, ...]
+    contradictory_evidence_ids: tuple[str, ...]
+    alternative_explanations: tuple[str, ...]
+    falsification_conditions: tuple[str, ...]
+    uncertainty_and_limitations: str
+
+    def __post_init__(self):
+        for name in ("claim_id", "statement", "scope", "uncertainty_and_limitations"):
+            if not isinstance(getattr(self, name), str) or not getattr(self, name).strip():
+                raise VerificationError(f"{name} is required")
+        _required_tuple("supporting_evidence_ids", self.supporting_evidence_ids)
+        if self.contradictory_evidence_ids:
+            _required_tuple("contradictory_evidence_ids", self.contradictory_evidence_ids)
+        if set(self.supporting_evidence_ids) & set(self.contradictory_evidence_ids):
+            raise VerificationError("supporting and contradictory evidence lists must be distinct")
+        _required_tuple("alternative_explanations", self.alternative_explanations)
+        _required_tuple("falsification_conditions", self.falsification_conditions)
 
 
 @dataclass(frozen=True, slots=True)
@@ -37,10 +68,8 @@ class IndependentReview:
             raise VerificationError("reviewed_at must include a timezone")
         if self.originator_id == self.reviewer_id:
             raise VerificationError("reviewer must be independent of the originator")
-        if not self.methods or any(not x.strip() for x in self.methods):
-            raise VerificationError("review methods are required")
-        if not self.evidence_ids or len(set(self.evidence_ids)) != len(self.evidence_ids):
-            raise VerificationError("unique evidence references are required")
+        _required_tuple("methods", self.methods)
+        _required_tuple("evidence_ids", self.evidence_ids)
         if self.outcome not in {"PASS", "FAIL", "INCONCLUSIVE"}:
             raise VerificationError("outcome must be PASS, FAIL or INCONCLUSIVE")
 
@@ -58,6 +87,7 @@ class IndependentReview:
 
 @dataclass(frozen=True, slots=True)
 class ScientificEvidenceGate:
+    claim: ScientificClaim
     evidence_integrity_verified: bool
     provenance_reviewed: bool
     measurement_statuses: tuple[str, ...]
@@ -72,12 +102,9 @@ class GateDecision:
 
 
 def assess_scientific_evidence(gate: ScientificEvidenceGate) -> GateDecision:
-    """Return VALIDATED only when all supplied mandatory checks pass.
-
-    This is a workflow decision helper, not a substitute for expert judgement,
-    source authentication, peer review credentials or legal sign-off.
-    """
+    """Check prerequisite controls; never pronounce a claim scientifically true."""
     blockers = []
+    review = gate.independent_review
     if not gate.evidence_integrity_verified:
         blockers.append("raw evidence byte integrity not verified")
     if not gate.provenance_reviewed:
@@ -88,7 +115,12 @@ def assess_scientific_evidence(gate: ScientificEvidenceGate) -> GateDecision:
         blockers.append("one or more measurements are not VALID")
     if not gate.statistical_analysis_reviewed:
         blockers.append("statistical analysis has not been independently reviewed")
-    if gate.independent_review.outcome != "PASS":
+    if review.outcome != "PASS":
         blockers.append("independent scientific review did not PASS")
-    status = "VALIDATED" if not blockers else "BLOCKED"
+    if review.claim_id != gate.claim.claim_id:
+        blockers.append("independent review references a different claim")
+    required_refs = set(gate.claim.supporting_evidence_ids) | set(gate.claim.contradictory_evidence_ids)
+    if not required_refs.issubset(set(review.evidence_ids)):
+        blockers.append("independent review did not inspect every claim evidence reference")
+    status = "CONTROLS_PASSED" if not blockers else "BLOCKED"
     return GateDecision(status, tuple(blockers))
