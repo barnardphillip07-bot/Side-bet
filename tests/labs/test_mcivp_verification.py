@@ -35,8 +35,8 @@ def gate(**kwargs):
     values = dict(
         claim=claim(), integrity_verified_evidence_ids=ALL_EVIDENCE,
         provenance_reviewed_evidence_ids=ALL_EVIDENCE,
-        measurement_statuses=("VALID", "VALID"), statistical_analysis_reviewed=True,
-        independent_review=review(),
+        measurement_assessments=(("EV-RAW-01", "VALID"),),
+        statistical_analysis_reviewed=True, independent_review=review(),
     )
     values.update(kwargs)
     return ScientificEvidenceGate(**values)
@@ -63,7 +63,7 @@ def test_scientific_gate_passes_controls_without_claiming_truth():
 
 def test_gate_blocks_unverified_measurement_and_failed_review():
     result = assess_scientific_evidence(gate(
-        measurement_statuses=("VALID", "INDETERMINATE"),
+        measurement_assessments=(("EV-RAW-01", "VALID"), ("EV-CAL-01", "INDETERMINATE")),
         independent_review=review("INCONCLUSIVE"),
     ))
     assert result.status == "BLOCKED"
@@ -73,7 +73,7 @@ def test_gate_blocks_unverified_measurement_and_failed_review():
 def test_gate_blocks_missing_provenance_and_integrity():
     result = assess_scientific_evidence(gate(
         integrity_verified_evidence_ids=(), provenance_reviewed_evidence_ids=(),
-        measurement_statuses=(), statistical_analysis_reviewed=False,
+        measurement_assessments=(), statistical_analysis_reviewed=False,
     ))
     assert result.status == "BLOCKED"
     assert len(result.blockers) == 4
@@ -101,6 +101,14 @@ def test_gate_rejects_review_for_different_claim():
     result = assess_scientific_evidence(gate(independent_review=review(claim_id="OTHER")))
     assert result.status == "BLOCKED"
     assert "independent review references a different claim" in result.blockers
+
+
+def test_gate_rejects_measurement_assessment_for_unrelated_evidence():
+    result = assess_scientific_evidence(gate(
+        measurement_assessments=(("EV-NOT-IN-CLAIM", "VALID"),),
+    ))
+    assert result.status == "BLOCKED"
+    assert "measurement assessment references evidence outside the claim" in result.blockers
 
 
 def test_claim_requires_alternatives_and_falsification_conditions():
