@@ -1,0 +1,23 @@
+{
+  "status": "candidate numerical results; software/model verification only",
+  "scope": "closed, isolated, single-mode, prescribed-capacitance laboratory-frame model",
+  "environment": {"python": "3.13.5", "numpy": "2.3.5", "scipy": "1.17.0"},
+  "rwa_sweep_frequency_Hz": 5000000.0,
+  "rwa_sweep_frequency_note": "computationally scaled reference; not a hardware parameter selection",
+  "numerical_refinement": [
+    {"maximum_steps_per_pump_period":32,"max_symplectic_residual":2.275957200481571e-14,"max_relative_energy_closure_residual":6.576899929098973e-16,"minimum_detV":0.24999999999999972,"max_covariance_reconstruction_error":1.4377388168895777e-14},
+    {"maximum_steps_per_pump_period":64,"max_symplectic_residual":1.7763568394002505e-15,"max_relative_energy_closure_residual":7.963518871370573e-16,"minimum_detV":0.24999999999999983,"max_covariance_reconstruction_error":1.5543122344752192e-15},
+    {"maximum_steps_per_pump_period":128,"max_symplectic_residual":2.4424906541753444e-15,"max_relative_energy_closure_residual":6.666766342951549e-16,"minimum_detV":0.24999999999999972,"max_covariance_reconstruction_error":1.5543122344753442e-15}
+  ],
+  "rwa_sweep": [
+    {"epsilon":1e-5,"detuning_over_g":0.0,"detuning_rad_s":0.0,"max_relative_covariance_error":2.500308766049202e-6,"final_stroboscopic_relative_covariance_error":3.233674395601684e-14,"cycles":5,"points_per_cycle":32},
+    {"epsilon":1e-5,"detuning_over_g":0.5,"detuning_rad_s":39.26990816987242,"max_relative_covariance_error":2.5003103280219185e-6,"final_stroboscopic_relative_covariance_error":4.9092190472388746e-11,"cycles":5,"points_per_cycle":32},
+    {"epsilon":1e-5,"detuning_over_g":1.0,"detuning_rad_s":78.53981633974485,"max_relative_covariance_error":2.5003118887481863e-6,"final_stroboscopic_relative_covariance_error":9.817872665671955e-11,"cycles":5,"points_per_cycle":32},
+    {"epsilon":1e-4,"detuning_over_g":0.0,"detuning_rad_s":0.0,"max_relative_covariance_error":2.503085046165686e-5,"final_stroboscopic_relative_covariance_error":3.317725029029236e-11,"cycles":5,"points_per_cycle":32},
+    {"epsilon":1e-4,"detuning_over_g":0.5,"detuning_rad_s":392.69908169872417,"max_relative_covariance_error":2.5031006780404527e-5,"final_stroboscopic_relative_covariance_error":4.913140893981337e-9,"cycles":5,"points_per_cycle":32},
+    {"epsilon":1e-4,"detuning_over_g":1.0,"detuning_rad_s":785.3981633974483,"max_relative_covariance_error":2.5031162404116147e-5,"final_stroboscopic_relative_covariance_error":9.821115774187592e-9,"cycles":5,"points_per_cycle":32},
+    {"epsilon":1e-3,"detuning_over_g":0.0,"detuning_rad_s":0.0,"max_relative_covariance_error":0.00025305887636552335,"final_stroboscopic_relative_covariance_error":3.3168063810332015e-8,"cycles":5,"points_per_cycle":32},
+    {"epsilon":1e-3,"detuning_over_g":0.5,"detuning_rad_s":3926.9908169872415,"max_relative_covariance_error":0.0002530745616374727,"final_stroboscopic_relative_covariance_error":4.962291527441739e-7,"cycles":5,"points_per_cycle":32},
+    {"epsilon":1e-3,"detuning_over_g":1.0,"detuning_rad_s":7853.981633974483,"max_relative_covariance_error":0.00025308954970220743,"final_stroboscopic_relative_covariance_error":9.85836229965351e-7,"cycles":5,"points_per_cycle":32}
+  ]
+}
