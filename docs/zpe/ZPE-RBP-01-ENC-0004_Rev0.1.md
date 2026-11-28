@@ -39,68 +39,68 @@ Excluded:
 Do not append phenomenological damping or unpaired noise to this model. Any later open-system extension must derive coupling and noise from an actual port model.
 
 For this isolated test model:
-[
+\\[
 \bar C(t)=C_r(t)/C_{r0}=1+\epsilon\cos(\Omega_p t+\phi),\quad |\epsilon|<1.
-]
+\\]
 All sweep values are numerical test inputs, not measured device parameters or selected hardware values.
 
 ## 3. Canonical Hamiltonian and exact laboratory-frame equations
 
 Start from
-[
+\\[
 \hat H_r(t)=\frac{\hat Q_r^2}{2C_r(t)}+
 \frac{\hat\Phi_r^2}{2L_r},\qquad
 [\hat\Phi_r,\hat Q_r]=i\hbar.
-]
+\\]
 With
-[
+\\[
 \omega_0=(L_rC_{r0})^{-1/2},\quad
 \hat X=\frac{\hat\Phi_r}{\sqrt{\hbar/(C_{r0}\omega_0)}},\quad
 \hat P=\frac{\hat Q_r}{\sqrt{\hbar C_{r0}\omega_0}},
-]
+\\]
 we have ([X,P]=i). Define
-[
+\\[
 \alpha(t)=\frac{C_{r0}}{C_r(t)}=\frac{1}{\bar C(t)}.
-]
+\\]
 Then
-[
+\\[
 \boxed{\hat H_r(t)=\frac{\hbar\omega_0}{2}
 [\hat X^2+\alpha(t)\hat P^2].}
-]
+\\]
 The canonical Heisenberg equations are
-[
+\\[
 \boxed{\dot{\mathbf R}=A(t)\mathbf R,\quad
 A(t)=\begin{bmatrix}0&\omega_0\alpha(t)\\-\omega_0&0\end{bmatrix},
 \quad \mathbf R=[\hat X,\hat P]^T.}
-]
+\\]
 No expansion of (1/C_r(t)) is made in the laboratory-frame propagator.
 
 ## 4. Fundamental matrix, covariance and physicality
 
 Propagate the fundamental matrix independently:
-[
+\\[
 \dot S=A(t)S,\qquad S(0)=I.
-]
+\\]
 For the symmetrized covariance
-[
+\\[
 V_{ij}=\tfrac12\langle\hat R_i\hat R_j+\hat R_j\hat R_i\rangle,
-]
+\\]
 and zero mean:
-[
+\\[
 \boxed{\dot V=A(t)V+VA(t)^T.}
-]
+\\]
 With
-[
+\\[
 \Omega=\begin{bmatrix}0&1\\-1&0\end{bmatrix},
-]
+\\]
 closed evolution must preserve
-[
+\\[
 S^T\Omega S=\Omega,
-]
+\\]
 which preserves the canonical commutator. Quantum covariance physicality is
-[
+\\[
 V+\frac{i}{2}\Omega\succeq0,
-]
+\\]
 equivalent for one mode to (det V\ge1/4).
 
 The implementation propagates both (V) and (S V(0)S^T) and checks their agreement. The default initial state is the fixed-mode vacuum (V(0)=I/2). Alternate initial covariance is accepted only when symmetric and uncertainty-admissible.
@@ -108,39 +108,39 @@ The implementation propagates both (V) and (S V(0)S^T) and checks their agreemen
 ## 5. Boundary-work identity and energy closure
 
 For a zero-mean state:
-[
+\\[
 E(t)=\langle H_r(t)\rangle=
 \frac{\hbar\omega_0}{2}
 [V_{XX}(t)+\alpha(t)V_{PP}(t)].
-]
+\\]
 Since (dot\alpha=d(1/\bar C)/dt):
-[
+\\[
 \frac{dW_{boundary}}{dt}
 =\left\langle\frac{\partial\hat H_r}{\partial t}\right\rangle
 =\frac{\hbar\omega_0}{2}\dot\alpha V_{PP}
 =-\frac{\dot C_r(t)}{2}\langle\hat V_r^2\rangle,
 \quad \hat V_r=\hat Q_r/C_r(t).
-]
+\\]
 The work is integrated as a separate state variable and compared with the energy change. For this closed prescribed-boundary model:
-[
+\\[
 \boxed{E(t)-E(0)=W_{boundary}(0\to t).}
-]
+\\]
 This identity traces resonator energy change to work performed by the time-varying boundary; it is not an independent vacuum-energy source.
 
 ## 6. RWA comparison
 
 The comparison uses only the **closed Hamiltonian drift** from the ENC-0003 convention—not its damping, baths, output ports or noise model. In the frame rotating at (Omega_p/2):
-[
+\\[
 \Delta=\omega_0-\frac{\Omega_p}{2},\qquad
 \lambda=-i\frac{\epsilon\omega_0}{4}e^{-i\phi}.
-]
+\\]
 The RWA quadrature drift is
-[
+\\[
 A_{RWA}=\begin{bmatrix}
 \operatorname{Re}\lambda&\Delta+\operatorname{Im}\lambda\\
 -\Delta+\operatorname{Im}\lambda&-\operatorname{Re}\lambda
 \end{bmatrix}.
-]
+\\]
 The exact laboratory covariance is transformed into the same rotating quadrature frame. Maximum error is the maximum relative Frobenius covariance error over the full sampled time series, including within-cycle micromotion. Final error is the endpoint comparison after an integer number of pump cycles. The RWA is a first-order weak-modulation approximation; this finite sweep does not establish a universal validity boundary.
 
 ## 7. Implementation and reproduction
