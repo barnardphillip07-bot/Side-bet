@@ -89,8 +89,8 @@ class IndependentReview:
 @dataclass(frozen=True, slots=True)
 class ScientificEvidenceGate:
     claim: ScientificClaim
-    evidence_integrity_verified: bool
-    provenance_reviewed: bool
+    integrity_verified_evidence_ids: tuple[str, ...]
+    provenance_reviewed_evidence_ids: tuple[str, ...]
     measurement_statuses: tuple[str, ...]
     statistical_analysis_reviewed: bool
     independent_review: IndependentReview
@@ -106,10 +106,11 @@ def assess_scientific_evidence(gate: ScientificEvidenceGate) -> GateDecision:
     """Check prerequisite controls; never pronounce a claim scientifically true."""
     blockers = []
     review = gate.independent_review
-    if not gate.evidence_integrity_verified:
-        blockers.append("raw evidence byte integrity not verified")
-    if not gate.provenance_reviewed:
-        blockers.append("source provenance not reviewed")
+    required_refs = set(gate.claim.supporting_evidence_ids) | set(gate.claim.contradictory_evidence_ids)
+    if not required_refs.issubset(set(gate.integrity_verified_evidence_ids)):
+        blockers.append("raw evidence byte integrity not verified for every claim evidence reference")
+    if not required_refs.issubset(set(gate.provenance_reviewed_evidence_ids)):
+        blockers.append("source provenance not reviewed for every claim evidence reference")
     if not gate.measurement_statuses:
         blockers.append("no measurement assessments supplied")
     elif any(x != "VALID" for x in gate.measurement_statuses):
@@ -120,7 +121,6 @@ def assess_scientific_evidence(gate: ScientificEvidenceGate) -> GateDecision:
         blockers.append("independent scientific review did not PASS")
     if review.claim_id != gate.claim.claim_id:
         blockers.append("independent review references a different claim")
-    required_refs = set(gate.claim.supporting_evidence_ids) | set(gate.claim.contradictory_evidence_ids)
     if not required_refs.issubset(set(review.evidence_ids)):
         blockers.append("independent review did not inspect every claim evidence reference")
     status = "CONTROLS_PASSED" if not blockers else "BLOCKED"
